@@ -47,11 +47,13 @@ Akabati Enterprise/
 ├── README.md                # Project documentation and feature overview
 ├── index.html               # Main interactive storefront application
 ├── assets/
-│   └── images/              # Authentic company photographs (Ejisu showroom, brand wall, team)
-│       ├── akabati-showroom-main.jpg
-│       ├── akabati-brand-wall.jpg
-│       ├── akabati-customer-service.jpg
-│       └── akabati-packaging-dispatch.jpg
+│   └── images/              # Authentic company photographs and official brand logos
+│       ├── akabati-logo-icon.png             # Official circular "AE" gold monogram logo
+│       ├── akabati-logo-full.png             # Official full horizontal logo lockup
+│       ├── akabati-showroom-main.jpg         # Hero background & storefront exterior
+│       ├── akabati-brand-wall.jpg            # Showroom tour & company background
+│       ├── akabati-customer-service.jpg      # Consultation & sales counter
+│       └── akabati-packaging-dispatch.jpg    # Order tracking background & dispatch hub
 ├── css/
 │   └── style.css            # Responsive CSS design system (Ghana Gold & Dark Slate palette)
 └── js/
