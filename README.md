@@ -46,6 +46,12 @@ Akabati Enterprise/
 ├── ARCHITECTURE.md          # Full production system architecture & delivery specification
 ├── README.md                # Project documentation and feature overview
 ├── index.html               # Main interactive storefront application
+├── assets/
+│   └── images/              # Authentic company photographs (Ejisu showroom, brand wall, team)
+│       ├── akabati-showroom-main.jpg
+│       ├── akabati-brand-wall.jpg
+│       ├── akabati-customer-service.jpg
+│       └── akabati-packaging-dispatch.jpg
 ├── css/
 │   └── style.css            # Responsive CSS design system (Ghana Gold & Dark Slate palette)
 └── js/
