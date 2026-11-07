@@ -69,6 +69,14 @@
 
       <!-- Action Controls -->
       <div class="nav-actions">
+        <!-- Wishlist Trigger -->
+        <button class="action-btn" onclick="window.openWishlistModal()" title="View your saved wishlist" aria-label="Saved Wishlist">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="btn-counter" id="wishlistCountBadge" style="display: none;">0</span>
+        </button>
+
         <!-- Compare Trigger -->
         <button class="action-btn" onclick="window.openCompareModal()" title="View side-by-side product comparison" aria-label="Compare products">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -294,12 +302,16 @@
         </p>
       </div>
 
-      <!-- Toolbar: Category Tabs + Search + Sorting -->
+      <!-- Toolbar: Category Tabs + Search + Sorting + View Switcher -->
       <div class="shop-controls">
         <div class="filter-tabs">
           <button class="filter-tab active" data-category="All">All Items</button>
           <button class="filter-tab" data-category="Electronics">Electronics</button>
           <button class="filter-tab" data-category="Vehicles">Vehicles</button>
+          <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); cursor: pointer; user-select: none; margin-left: 8px;">
+            <input type="checkbox" id="inStockOnlyToggle" style="accent-color: var(--primary-gold); cursor: pointer;" />
+            <span>In Stock Only</span>
+          </label>
         </div>
 
         <div class="search-and-sort">
@@ -308,7 +320,7 @@
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="search" id="searchInput" placeholder="Search devices, cars, brands..." aria-label="Search products" />
+            <input type="search" id="searchInput" placeholder="Search devices, cars, brands... (Press '/' to focus)" aria-label="Search products" />
           </div>
 
           <select class="sort-select" id="sortSelect" aria-label="Sort products">
@@ -318,6 +330,28 @@
             <option value="az">Name: A to Z</option>
             <option value="new">Newest Arrivals</option>
           </select>
+
+          <!-- Grid vs List View Mode -->
+          <div class="view-mode-group">
+            <button class="view-mode-btn active" data-mode="grid" onclick="window.setViewMode('grid')" title="Grid View" aria-label="Grid View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+            <button class="view-mode-btn" data-mode="list" onclick="window.setViewMode('list')" title="List View" aria-label="List View">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -611,6 +645,10 @@
       <button class="drawer-close-btn" onclick="window.closeCart()" aria-label="Close cart">×</button>
     </div>
 
+    <div style="padding: 14px 24px 0;">
+      <div class="shipping-progress-container" id="cartShippingProgress" style="display: none;"></div>
+    </div>
+
     <div class="cart-items-container" id="cartItemsList">
       <!-- Injected by app.js -->
     </div>
@@ -698,43 +736,46 @@
     </div>
   </div>
 
-  <!-- Customer Account Modal -->
+  <!-- Customer Account Portal Modal -->
   <div class="modal-wrapper" id="accountModalWrapper">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Customer Portal</h3>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="brand-icon" style="width: 36px; height: 36px;">
+            <img src="assets/images/akabati-logo-icon.png" alt="Akabati Enterprise" />
+          </div>
+          <h3 style="margin: 0;">Customer Portal</h3>
+        </div>
         <button class="drawer-close-btn" onclick="window.closeAccountModal()" aria-label="Close account">×</button>
       </div>
       <div class="modal-body">
-        <div style="text-align: center; margin-bottom: 24px;">
-          <div class="brand-icon" style="margin: 0 auto 12px; width: 68px; height: 68px;">
-            <img src="assets/images/akabati-logo-icon.png" alt="Akabati Enterprise Official Logo" />
-          </div>
-          <h4 style="font-family: var(--font-heading); margin-bottom: 6px;">Sign in to Akabati Enterprise</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">
-            Manage your orders, saved Ghana delivery addresses, and warranty claims.
-          </p>
+        <!-- Portal Tabs -->
+        <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--surface-border); margin-bottom: 20px;">
+          <button class="qv-tab-btn account-tab-btn active" data-tab="orders" onclick="window.switchAccountTab('orders')">My Orders</button>
+          <button class="qv-tab-btn account-tab-btn" data-tab="wishlist" onclick="window.switchAccountTab('wishlist')">Saved Wishlist</button>
+          <button class="qv-tab-btn account-tab-btn" data-tab="profile" onclick="window.switchAccountTab('profile')">Profile & Address</button>
         </div>
 
-        <form onsubmit="event.preventDefault(); window.closeAccountModal(); showToast('Signed in successfully as Kwame Mensah.');">
-          <div class="form-group">
-            <label>Ghana Mobile Number or Email *</label>
-            <input type="text" class="form-control" placeholder="024 000 0000 or you@gmail.com" value="024 123 4567" required />
-          </div>
-
-          <div class="form-group">
-            <label>Password / Security Code *</label>
-            <input type="password" class="form-control" value="••••••••••••" required />
-          </div>
-
-          <button type="submit" class="btn-primary btn-block" style="margin-top: 10px;">
-            Sign In Securely →
-          </button>
-        </form>
-
-        <div style="border-top: 1px solid var(--surface-border); margin-top: 24px; padding-top: 18px; font-size: 0.82rem; color: var(--text-muted); text-align: center;">
-          In live deployment, user sessions are managed securely via Supabase Auth with SMS OTP and Google OAuth.
+        <div id="accountPortalContent">
+          <!-- Rendered dynamically by app.js -->
         </div>
+
+        <div style="border-top: 1px solid var(--surface-border); margin-top: 24px; padding-top: 16px; font-size: 0.78rem; color: var(--text-muted); text-align: center;">
+          Active customer session connected to Akabati Enterprise Ejisu Hub.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Tax Invoice Modal -->
+  <div class="modal-wrapper" id="invoiceModalWrapper">
+    <div class="modal-card wide">
+      <div class="modal-header">
+        <h3>Official Tax Invoice & Receipt</h3>
+        <button class="drawer-close-btn" onclick="window.closeInvoiceModal()" aria-label="Close invoice">×</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody">
+        <!-- Injected by app.js -->
       </div>
     </div>
   </div>
@@ -743,9 +784,14 @@
   <div class="modal-wrapper" id="adminModalWrapper">
     <div class="modal-card admin-card">
       <div class="modal-header">
-        <div>
-          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--accent-green);">Authorized Management Session</span>
-          <h3 style="margin: 0;">Akabati Business Operations Console</h3>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="brand-icon" style="width: 40px; height: 40px;">
+            <img src="assets/images/akabati-logo-icon.png" alt="Akabati Enterprise" />
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--accent-green);">Authorized Management Session</span>
+            <h3 style="margin: 0;">Akabati Business Operations Console</h3>
+          </div>
         </div>
         <button class="drawer-close-btn" onclick="window.closeAdminModal()" aria-label="Close admin">×</button>
       </div>
@@ -757,6 +803,8 @@
         <button class="admin-nav-tab" onclick="window.switchAdminTab('inventory', this)">Stock Balances</button>
         <button class="admin-nav-tab" onclick="window.switchAdminTab('orders', this)">Orders Pipeline</button>
         <button class="admin-nav-tab" onclick="window.switchAdminTab('finance', this)">Financial Reconciliation</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('promotions', this)">Promotions & Vouchers</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('audit', this)">System Audit Log</button>
       </div>
 
       <div class="modal-body" id="adminTabContent">
@@ -782,6 +830,7 @@
   <div class="toast" id="siteToast" role="status" aria-live="polite"></div>
 
   <!-- JavaScript Applications -->
+  <script src="js/backend-service.js"></script>
   <script src="js/products-data.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -17,25 +17,39 @@
 ## 🚀 Key Features
 
 ### 🛒 Customer Storefront
-- **Dual Department Specialization:**
-  - **Electronics:** Smart 4K TVs, Apple MacBooks, flagships smartphones, studio headphones, and smart home appliances with detailed tech specifications (RAM, SSD, processor, display, warranty).
+- **Dual Department Specialization (Preserved Content):**
+  - **Electronics:** Smart 4K TVs, Apple MacBooks, flagship smartphones, studio headphones, and smart home appliances with detailed tech specifications (RAM, SSD, processor, display, warranty).
   - **Vehicles:** Certified 4x4 SUVs, luxury sedans, commercial pickups, and hybrids with structured automotive attributes (Year, Transmission, Mileage, Engine displacement, 120-Point Inspection, Showroom Location).
-- **Interactive Catalogue:** Real-time search, category filtering, price sorting, and live stock availability badges.
-- **Side-by-Side Product Comparison:** Compare up to 3 items with an interactive side-by-side specification matrix.
-- **Quick View & Gallery Switcher:** Detailed specification sheets, photo galleries, and direct WhatsApp enquiry links.
+- **Interactive Catalogue & Faceted Discovery:**
+  - Real-time search with keyboard focus shortcut (`/`).
+  - View mode toggle: Switch between **Grid View** and **List View**.
+  - In-Stock Only filter and category department tabs.
+  - Live stock health meter and automatic discount percentage badge.
+- **Wishlist & Side-by-Side Comparison:**
+  - Save items to a persistent wishlist with header badge counter.
+  - Compare up to 3 electronics or vehicles simultaneously with a full specification matrix.
+- **Enhanced Quick View Modal:** 3 tabbed inspection views (Technical Specs, Quality Guarantee & 120-Point Inspection, and Showroom & Delivery times).
 - **Cart & Multi-Step Checkout:**
+  - **Free Delivery Progress Meter:** Dynamic visual bar tracking threshold for free delivery or Ejisu pickup.
+  - **Coupon / Promo Code Engine:** Validates discounts (`AKABATI10`, `EJISUFREE`, `WELCOME50`) on the server layer.
   - **Step 1:** Recipient contact & Ghana delivery address (Region, City, Ghana Post Digital Address).
   - **Step 2:** Fulfilment selection (Ejisu Showroom Pickup, Ashanti Regional Courier, or Nationwide Express Delivery).
-  - **Step 3:** Payment channel (MTN Mobile Money, Telecel Cash, Card / Bank Transfer via Paystack adapter, or Official WhatsApp Concierge).
+  - **Step 3:** Payment channel with **Interactive MoMo USSD Phone Simulator** (`*170#`), Paystack tokenized card gateway, or Official WhatsApp Concierge.
   - **Step 4:** Idempotent order placement generating an authoritative reference (e.g. `AKB-78291`).
-- **Live Order Tracking:** Multi-stage visual state timeline (Placed → Verified → Picking → Dispatch → Delivered).
+- **Live Order Tracking & Tax Invoice Printing:**
+  - Multi-stage visual state timeline (Placed → Verified → Picking → Dispatch → Delivered).
+  - Route visualizer (*Ejisu Hub → Delivery Destination*).
+  - Official Tax Invoice modal with print/save PDF support (`window.print()`).
+- **Customer Portal:** Tabbed user dashboard with active orders tracking, saved wishlist items, and saved delivery addresses.
 
 ### 🛠️ Business Operations & Admin Console (Staff Portal)
-- **Executive Metrics:** Authoritative revenue, total orders placed, on-hand inventory units, and low-stock alerts.
+- **Executive Metrics:** Authoritative revenue, total orders placed, on-hand inventory units, low-stock alerts, and Department performance split (Electronics vs Vehicles).
 - **Catalogue Management:** Add new electronics or vehicles with structured attributes, adjust prices in GH₵, toggle active/archived publication status.
 - **Audited Inventory Balances:** View on-hand and reserved stock; perform adjustments with mandatory audit reason codes (*Stock Receipt*, *Physical Count Correction*, *Damage/Loss*).
 - **Orders Fulfilment Pipeline:** Advance orders through explicit state transitions (`PROCESSING` → `READY_FOR_PICKUP` → `DISPATCHED` → `DELIVERED`).
 - **Financial Reconciliation:** Transaction log recording MoMo and card settlement statuses.
+- **Promotions & Vouchers Manager:** Inspect active promo codes and thresholds.
+- **System Audit Log:** Immutable chronological log of all administrative actions with actor and timestamp.
 
 ---
 
@@ -47,16 +61,13 @@ Akabati Enterprise/
 ├── README.md                # Project documentation and feature overview
 ├── index.html               # Main interactive storefront application
 ├── assets/
-│   └── images/              # Authentic company photographs and official brand logos
+│   └── images/              # Official company logos
 │       ├── akabati-logo-icon.png             # Official circular "AE" gold monogram logo
-│       ├── akabati-logo-full.png             # Official full horizontal logo lockup
-│       ├── akabati-showroom-main.jpg         # Hero background & storefront exterior
-│       ├── akabati-brand-wall.jpg            # Showroom tour & company background
-│       ├── akabati-customer-service.jpg      # Consultation & sales counter
-│       └── akabati-packaging-dispatch.jpg    # Order tracking background & dispatch hub
+│       └── akabati-logo-full.png             # Official full horizontal logo lockup
 ├── css/
 │   └── style.css            # Responsive CSS design system (Ghana Gold & Dark Slate palette)
 └── js/
+    ├── backend-service.js   # Domain services engine (Catalog, Inventory, Orders, Audit, Promo)
     ├── products-data.js     # Verified seed catalogue for electronics & vehicles
     └── app.js               # State engine, cart, checkout, tracking & admin console
 ```

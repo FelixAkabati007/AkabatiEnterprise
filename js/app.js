@@ -1,5 +1,5 @@
 /**
- * Akabati Enterprise — Full E-commerce Application Engine
+ * Akabati Enterprise — Modern E-Commerce Application Engine
  * Brand Statement: Quality, Our Pride
  * Location: Ejisu, Ashanti Region, Ghana
  */
@@ -7,146 +7,17 @@
 (function () {
   'use strict';
 
-  // --- STATE INITIALIZATION ---
-  const STORAGE_KEYS = {
-    PRODUCTS: 'akabati_products',
-    CART: 'akabati_cart',
-    ORDERS: 'akabati_orders',
-    COMPARISON: 'akabati_comparison',
-    MOVEMENTS: 'akabati_stock_movements',
-    USER: 'akabati_user'
-  };
+  // DOM Selection Helpers
+  const $ = selector => document.querySelector(selector);
+  const $$ = selector => document.querySelectorAll(selector);
 
-  // Helper: Format Money in Ghana Cedis
+  // Currency Formatter (Ghana Cedis)
   function formatMoney(amount) {
     return 'GH₵ ' + Number(amount || 0).toLocaleString('en-GH', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
   }
-
-  // Load Products from Storage or Default Seed
-  let products = [];
-  try {
-    const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    if (saved) {
-      products = JSON.parse(saved);
-    } else if (typeof INITIAL_PRODUCTS !== 'undefined') {
-      products = INITIAL_PRODUCTS;
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    }
-  } catch (e) {
-    console.error('Failed to load products from storage', e);
-    products = typeof INITIAL_PRODUCTS !== 'undefined' ? INITIAL_PRODUCTS : [];
-  }
-
-  // Load Cart
-  let cart = [];
-  try {
-    cart = JSON.parse(localStorage.getItem(STORAGE_KEYS.CART) || '[]');
-  } catch (e) {
-    cart = [];
-  }
-
-  // Load Comparison
-  let comparison = [];
-  try {
-    comparison = JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPARISON) || '[]');
-  } catch (e) {
-    comparison = [];
-  }
-
-  // Load Orders with Demo Seeds if Empty
-  let orders = [];
-  try {
-    const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
-    if (savedOrders) {
-      orders = JSON.parse(savedOrders);
-    } else {
-      orders = [
-        {
-          orderNumber: 'AKB-78291',
-          date: '2026-11-06T14:22:00Z',
-          customer: {
-            name: 'Kwame Mensah',
-            phone: '024 123 4567',
-            email: 'kwame.mensah@gmail.com',
-            region: 'Ashanti',
-            city: 'Kumasi',
-            area: 'Ahodwo',
-            digitalAddress: 'AK-039-4821'
-          },
-          items: [
-            {
-              id: 'EL-001',
-              name: 'Samsung 65" Crystal UHD 4K Smart Television',
-              price: 7850,
-              qty: 1,
-              image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=500&q=80'
-            }
-          ],
-          deliveryMethod: 'Ashanti Regional Express',
-          deliveryCost: 50,
-          total: 7900,
-          paymentMethod: 'MTN Mobile Money',
-          paymentStatus: 'PAID',
-          fulfilmentStatus: 'DISPATCHED',
-          timeline: [
-            { title: 'Order Placed & Confirmed', time: 'Yesterday 14:22', status: 'done' },
-            { title: 'Payment Authoritatively Verified (MoMo Ref: MM-98231)', time: 'Yesterday 14:25', status: 'done' },
-            { title: 'Picked & Quality Inspected at Ejisu Depot', time: 'Yesterday 16:40', status: 'done' },
-            { title: 'Dispatched with Courier (Driver: Kofi A. - 020 998 8122)', time: 'Today 08:30', status: 'active' },
-            { title: 'Final Handover & Delivery', time: 'Expected by 14:00', status: 'pending' }
-          ]
-        },
-        {
-          orderNumber: 'AKB-84910',
-          date: '2026-11-07T09:15:00Z',
-          customer: {
-            name: 'Akua Serwaa',
-            phone: '055 889 1234',
-            email: 'akua.serwaa@gmail.com',
-            region: 'Ashanti',
-            city: 'Ejisu',
-            area: 'Near Post Office',
-            digitalAddress: 'AS-012-3984'
-          },
-          items: [
-            {
-              id: 'EL-003',
-              name: 'Sony WH-1000XM5 Wireless ANC Headphones',
-              price: 4200,
-              qty: 1,
-              image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=500&q=80'
-            }
-          ],
-          deliveryMethod: 'Showroom Pickup (Ejisu)',
-          deliveryCost: 0,
-          total: 4200,
-          paymentMethod: 'Paystack Card / Transfer',
-          paymentStatus: 'PAID',
-          fulfilmentStatus: 'READY_FOR_PICKUP',
-          timeline: [
-            { title: 'Order Placed & Payment Verified', time: 'Today 09:15', status: 'done' },
-            { title: 'Quality Packaged & Marked for Showroom Pickup', time: 'Today 10:00', status: 'active' },
-            { title: 'Customer Collection at Ejisu Showroom', time: 'Ready for customer pickup', status: 'pending' }
-          ]
-        }
-      ];
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-    }
-  } catch (e) {
-    orders = [];
-  }
-
-  // Active Storefront Filters
-  let activeCategory = 'All';
-  let activeSort = 'featured';
-  let activeSearchQuery = '';
-
-  // DOM Selection helper
-  const $ = selector => document.querySelector(selector);
-  const $$ = selector => document.querySelectorAll(selector);
 
   // Toast Notification System
   function showToast(message) {
@@ -159,33 +30,48 @@
       toast.classList.remove('show');
     }, 3200);
   }
+  window.showToast = showToast;
 
-  // Save Cart & Re-render
+  // Active Storefront State
+  let activeCategory = 'All';
+  let activeSort = 'featured';
+  let activeSearchQuery = '';
+  let viewMode = 'grid'; // 'grid' or 'list'
+  let inStockOnly = false;
+
+  // Cart State (managed in localStorage)
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem('akabati_cart') || '[]');
+  } catch (e) {
+    cart = [];
+  }
+
+  // Active Applied Promo Code
+  let activePromo = null;
+
+  // Comparison State
+  let comparison = [];
+  try {
+    comparison = JSON.parse(localStorage.getItem('akabati_comparison') || '[]');
+  } catch (e) {
+    comparison = [];
+  }
+
+  // Persist Cart
   function persistCart() {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
+    localStorage.setItem('akabati_cart', JSON.stringify(cart));
     renderCart();
     updateBadges();
   }
 
-  // Save Products & Update Catalog
-  function persistProducts() {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    renderProductGrid();
-    renderAdminProducts();
-  }
-
-  // Save Orders
-  function persistOrders() {
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-  }
-
-  // Save Comparison
+  // Persist Comparison
   function persistComparison() {
-    localStorage.setItem(STORAGE_KEYS.COMPARISON, JSON.stringify(comparison));
+    localStorage.setItem('akabati_comparison', JSON.stringify(comparison));
     updateBadges();
   }
 
-  // Update Badge Counts
+  // Update Navigation Badges
   function updateBadges() {
     const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
     const cartBadge = $('#cartCountBadge');
@@ -199,16 +85,30 @@
       compareBadge.textContent = comparison.length;
       compareBadge.style.display = comparison.length > 0 ? 'grid' : 'none';
     }
+
+    const wishlistCount = AkabatiBackend.Wishlist.getWishlist().length;
+    const wishlistBadge = $('#wishlistCountBadge');
+    if (wishlistBadge) {
+      wishlistBadge.textContent = wishlistCount;
+      wishlistBadge.style.display = wishlistCount > 0 ? 'grid' : 'none';
+    }
   }
 
-  // Render Product Cards in Grid
+  // =========================================================================
+  // 1. Product Grid & List Rendering
+  // =========================================================================
   function renderProductGrid() {
     const grid = $('#productsGrid');
     if (!grid) return;
 
-    let filtered = products.filter(p => {
+    grid.className = `products-grid ${viewMode === 'list' ? 'list-view' : ''}`;
+
+    const allProducts = AkabatiBackend.Catalog.getAllProducts();
+    let filtered = allProducts.filter(p => {
       const isVisible = p.status === 'ACTIVE';
       const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+      const matchesStock = !inStockOnly || p.stock > 0;
+
       const query = activeSearchQuery.toLowerCase().trim();
       const matchesSearch = !query ||
         p.name.toLowerCase().includes(query) ||
@@ -217,7 +117,7 @@
         p.description.toLowerCase().includes(query) ||
         p.sku.toLowerCase().includes(query);
 
-      return isVisible && matchesCategory && matchesSearch;
+      return isVisible && matchesCategory && matchesStock && matchesSearch;
     });
 
     // Sorting
@@ -235,7 +135,7 @@
       grid.innerHTML = `
         <div class="empty-shop-state">
           <h3>No matching products found</h3>
-          <p>We couldn't find any items matching "${activeSearchQuery}". Try clearing filters or searching for another device or vehicle.</p>
+          <p>We couldn't find any items matching your filters. Try clearing search keywords or selecting another category.</p>
           <button class="btn-primary" onclick="window.resetShopFilters()">Reset All Filters</button>
         </div>
       `;
@@ -244,25 +144,51 @@
 
     grid.innerHTML = filtered.map(p => {
       const isVehicle = p.category === 'Vehicles';
+      const isWishlisted = AkabatiBackend.Wishlist.has(p.id);
+      const isCompared = comparison.includes(p.id);
+
+      const discountPercent = p.compareAtPrice && p.compareAtPrice > p.price
+        ? Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)
+        : null;
+
       const snippet = isVehicle
         ? `${p.specs['Year'] || ''} · ${p.specs['Transmission'] || ''} · ${p.specs['Mileage'] || ''} · ${p.specs['Fuel Type'] || ''}`
-        : `${p.specs['Display'] || p.specs['Display Size'] || p.specs['Processor'] || p.specs['Capacity'] || p.subcategory || 'Certified Quality'}`;
+        : `${p.specs['Display'] || p.specs['Display Size'] || p.specs['Processor'] || p.specs['Capacity'] || p.subcategory || 'Certified Genuine'}`;
 
-      const isCompared = comparison.includes(p.id);
+      // Stock meter calculation (max 10 scale)
+      const stockPercent = Math.min(100, Math.max(10, (p.stock / 8) * 100));
 
       return `
         <article class="product-card" data-id="${p.id}">
           <div class="product-media" onclick="window.openQuickView('${p.id}')">
             <img src="${p.images[0]}" alt="${p.name}" loading="lazy" />
-            <span class="product-tag-pill">${p.tag || (isVehicle ? 'Ejisu Lot' : 'Certified')}</span>
+            
+            <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="product-tag-pill">${p.tag || (isVehicle ? 'Ejisu Lot' : 'Certified')}</span>
+              ${discountPercent ? `<span class="discount-badge">-${discountPercent}%</span>` : ''}
+            </div>
+
+            <!-- Wishlist Heart Button -->
+            <button class="product-wishlist-btn ${isWishlisted ? 'active' : ''}" 
+                    title="${isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist'}" 
+                    onclick="event.stopPropagation(); window.toggleWishlist('${p.id}')" 
+                    aria-label="Wishlist">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+
+            <!-- Compare Toggle Button -->
             <button class="product-compare-toggle ${isCompared ? 'selected' : ''}" 
-                    title="Compare product" 
-                    onclick="event.stopPropagation(); window.toggleCompare('${p.id}')">
+                    title="Compare product side-by-side" 
+                    onclick="event.stopPropagation(); window.toggleCompare('${p.id}')" 
+                    aria-label="Compare">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
               </svg>
             </button>
           </div>
+
           <div class="product-info">
             <div class="product-meta-row">
               <span class="product-category-label">${p.brand} · ${p.category}</span>
@@ -270,21 +196,34 @@
                 ${p.stock > 0 ? (p.stock <= 2 ? `Only ${p.stock} left` : 'In Stock') : 'Out of Stock'}
               </span>
             </div>
+
             <h3 class="product-name" onclick="window.openQuickView('${p.id}')">${p.name}</h3>
             <div class="product-specs-snippet">${snippet}</div>
+
+            <!-- Stock Health Meter -->
+            <div class="stock-meter-wrapper">
+              <div class="stock-meter-label">
+                <span>Availability: ${p.stock > 0 ? `${p.stock} in Ejisu Hub` : 'Sold out'}</span>
+                <span>${p.stock > 0 ? 'Verified Genuine' : 'Restocking soon'}</span>
+              </div>
+              <div class="stock-meter-track">
+                <div class="stock-meter-fill ${p.stock <= 2 ? 'low' : ''}" style="width: ${p.stock > 0 ? stockPercent : 0}%"></div>
+              </div>
+            </div>
+
             <div class="product-footer">
               <div class="price-container">
                 <span class="current-price">${formatMoney(p.price)}</span>
                 ${p.compareAtPrice ? `<span class="compare-price">${formatMoney(p.compareAtPrice)}</span>` : ''}
               </div>
               <div class="product-actions-group">
-                <button class="quick-view-btn" title="View Specifications" onclick="window.openQuickView('${p.id}')">
+                <button class="quick-view-btn" title="View Full Specs & Certificate" onclick="window.openQuickView('${p.id}')">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
                 </button>
                 <button class="add-cart-btn" onclick="window.addToCart('${p.id}', 1)">
-                  <span>＋</span> <span>${isVehicle ? 'Enquire' : 'Add'}</span>
+                  <span>＋</span> <span>${isVehicle ? 'Enquire' : 'Add to Cart'}</span>
                 </button>
               </div>
             </div>
@@ -293,10 +232,37 @@
       `;
     }).join('');
   }
+  window.renderProductGrid = renderProductGrid;
 
-  // Add Item to Cart
+  // View Mode Switcher (Grid vs List)
+  window.setViewMode = function (mode) {
+    viewMode = mode;
+    $$('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    renderProductGrid();
+  };
+
+  // Wishlist Toggle
+  window.toggleWishlist = function (id) {
+    const isAdded = AkabatiBackend.Wishlist.toggle(id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
+    updateBadges();
+    renderProductGrid();
+    showToast(isAdded ? `Saved "${p.name.substring(0, 22)}..." to your Wishlist.` : `Removed from your Wishlist.`);
+  };
+
+  // Open Wishlist Modal
+  window.openWishlistModal = function () {
+    const ids = AkabatiBackend.Wishlist.getWishlist();
+    const modalBody = $('#accountModalBody');
+    window.openAccountModal();
+    window.switchAccountTab('wishlist');
+  };
+
+  // =========================================================================
+  // 2. Shopping Cart System
+  // =========================================================================
   window.addToCart = function (id, qty = 1) {
-    const p = products.find(item => item.id === id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
     if (!p) return;
 
     if (p.stock <= 0) {
@@ -307,7 +273,7 @@
     const existing = cart.find(item => item.id === id);
     if (existing) {
       if (existing.qty + qty > p.stock) {
-        showToast(`Maximum available stock reached (${p.stock} units).`);
+        showToast(`Maximum showroom stock reached (${p.stock} units).`);
         return;
       }
       existing.qty += qty;
@@ -319,10 +285,9 @@
     showToast(`Added "${p.name.substring(0, 24)}..." to your cart.`);
   };
 
-  // Change Quantity in Cart
   window.changeCartQty = function (id, delta) {
     const item = cart.find(x => x.id === id);
-    const p = products.find(x => x.id === id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
     if (!item) return;
 
     item.qty += delta;
@@ -338,11 +303,11 @@
     persistCart();
   };
 
-  // Render Cart Drawer
   function renderCart() {
     const container = $('#cartItemsList');
     const subtotalEl = $('#cartSubtotal');
     const checkoutBtn = $('#cartCheckoutBtn');
+    const progressEl = $('#cartShippingProgress');
     if (!container) return;
 
     if (!cart.length) {
@@ -353,10 +318,11 @@
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
           </svg>
           <h4 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 6px;">Your cart is empty</h4>
-          <p style="font-size: 0.85rem;">Explore our showroom in Ejisu for electronics and vehicles.</p>
+          <p style="font-size: 0.85rem;">Browse electronics or inspect our vehicles at Ejisu showroom.</p>
         </div>
       `;
       if (subtotalEl) subtotalEl.textContent = formatMoney(0);
+      if (progressEl) progressEl.style.display = 'none';
       if (checkoutBtn) {
         checkoutBtn.disabled = true;
         checkoutBtn.style.opacity = '0.5';
@@ -366,7 +332,7 @@
 
     let subtotal = 0;
     container.innerHTML = cart.map(item => {
-      const p = products.find(x => x.id === item.id);
+      const p = AkabatiBackend.Catalog.getProductById(item.id);
       if (!p) return '';
       const lineTotal = p.price * item.qty;
       subtotal += lineTotal;
@@ -395,6 +361,24 @@
       `;
     }).join('');
 
+    // Shipping progress indicator (Free delivery threshold GH₵ 1,000)
+    if (progressEl) {
+      progressEl.style.display = 'block';
+      const freeShippingGoal = 1000;
+      const progressPercent = Math.min(100, Math.round((subtotal / freeShippingGoal) * 100));
+      const needed = Math.max(0, freeShippingGoal - subtotal);
+
+      progressEl.innerHTML = `
+        <div style="display: flex; justify-content: space-between; font-weight: 700;">
+          <span>${needed > 0 ? `Add ${formatMoney(needed)} more for Free Delivery` : '🎉 You qualify for Free Delivery / Ejisu Pickup!'}</span>
+          <span>${progressPercent}%</span>
+        </div>
+        <div class="shipping-bar-track">
+          <div class="shipping-bar-fill" style="width: ${progressPercent}%;"></div>
+        </div>
+      `;
+    }
+
     if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
     if (checkoutBtn) {
       checkoutBtn.disabled = false;
@@ -402,7 +386,6 @@
     }
   }
 
-  // Open & Close Drawers/Modals
   window.openCart = function () {
     $('#siteOverlay').classList.add('show');
     $('#cartDrawer').classList.add('show');
@@ -413,9 +396,11 @@
     $('#cartDrawer').classList.remove('show');
   };
 
-  // Quick View Modal
+  // =========================================================================
+  // 3. Enhanced Quick View Modal with 3 Rich Tabs
+  // =========================================================================
   window.openQuickView = function (id) {
-    const p = products.find(item => item.id === id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
     if (!p) return;
 
     const modalBody = $('#quickViewModalBody');
@@ -444,32 +429,53 @@
           </div>
           <div class="quickview-thumbs">${galleryThumbs}</div>
         </div>
+
         <div class="quickview-details">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--primary-gold-dark); margin-bottom: 4px;">
-            ${p.brand} · ${p.subcategory || p.category}
-          </div>
-          <h4>${p.name}</h4>
-          <div class="quickview-price">${formatMoney(p.price)}</div>
-          <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-            ${p.description}
-          </p>
-
-          <div style="background: var(--surface-muted); padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 0.82rem;">
-            <strong>Assurance:</strong> ${p.warranty || 'Verified Akabati Standard Warranty'}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--primary-gold-dark);">
+              ${p.brand} · ${p.subcategory || p.category}
+            </span>
+            <span class="stock-indicator ${p.stock <= 2 ? 'low' : ''}">
+              ${p.stock > 0 ? `${p.stock} units available` : 'Out of Stock'}
+            </span>
           </div>
 
-          <h5 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 8px;">Specifications</h5>
-          <table class="specs-table">${specsHtml}</table>
+          <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; margin-bottom: 8px;">
+            ${p.name}
+          </h3>
 
-          <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <div class="quickview-price" style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;">
+            <span>${formatMoney(p.price)}</span>
+            ${p.compareAtPrice ? `<span style="font-size: 0.95rem; color: var(--text-muted); text-decoration: line-through;">${formatMoney(p.compareAtPrice)}</span>` : ''}
+          </div>
+
+          <!-- Quick View Tabbed Navigation -->
+          <div class="qv-tabs-nav">
+            <button class="qv-tab-btn active" onclick="window.switchQvTab('specs', this)">Technical Specs</button>
+            <button class="qv-tab-btn" onclick="window.switchQvTab('warranty', this)">Quality & Inspection</button>
+            <button class="qv-tab-btn" onclick="window.switchQvTab('delivery', this)">Showroom & Delivery</button>
+          </div>
+
+          <div id="qvTabContent">
+            <table class="specs-table">${specsHtml}</table>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;">
             <button class="btn-primary" style="flex: 1;" onclick="window.addToCart('${p.id}', 1); window.closeQuickView();">
               Add to Cart · ${formatMoney(p.price)}
             </button>
             <a class="btn-secondary" style="color: var(--text-main); border-color: var(--surface-border);" 
                href="https://wa.me/233244027477?text=${encodeURIComponent('Hello Akabati Enterprise, I am enquiring about ' + p.name + ' (SKU: ' + p.sku + ') priced at ' + formatMoney(p.price) + '. Is it currently available at your Ejisu showroom?')}" 
                target="_blank" rel="noopener">
-              WhatsApp Enquiry ↗
+              WhatsApp Concierge ↗
             </a>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 0.78rem; color: var(--text-muted);">
+            <span>SKU: <code>${p.sku}</code></span>
+            <button style="color: var(--primary-gold-dark); font-weight: 700;" onclick="navigator.clipboard.writeText(window.location.href); showToast('Product link copied to clipboard!');">
+              🔗 Share Product
+            </button>
           </div>
         </div>
       </div>
@@ -491,18 +497,59 @@
     if (element) element.classList.add('active');
   };
 
-  // Comparison Management
+  window.switchQvTab = function (tabType, el) {
+    $$('.qv-tab-btn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    const content = $('#qvTabContent');
+    if (!content) return;
+
+    if (tabType === 'specs') {
+      const p = AkabatiBackend.Catalog.getAllProducts().find(item => item.images[0] === $('#qvMainImage')?.src || true);
+      let specsHtml = Object.entries(p?.specs || {}).map(([key, value]) => `
+        <tr><td>${key}</td><td>${value}</td></tr>
+      `).join('');
+      content.innerHTML = `<table class="specs-table">${specsHtml}</table>`;
+    } else if (tabType === 'warranty') {
+      content.innerHTML = `
+        <div style="padding: 12px 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
+          <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">Akabati Standard of Excellence:</strong>
+          <p>Every product is certified authentic and physically tested prior to handover or dispatch.</p>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>100% Genuine brand guarantee (Samsung, Apple, Sony, Dell, Canon, Toyota, Mercedes-Benz, Honda).</li>
+            <li>Official 1 to 3-year warranty for electronics; 120-point mechanical & chassis check for vehicles.</li>
+            <li>7-day direct exchange policy for factory defects.</li>
+          </ul>
+        </div>
+      `;
+    } else if (tabType === 'delivery') {
+      content.innerHTML = `
+        <div style="padding: 12px 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
+          <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">Showroom Pickup & Courier Options:</strong>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li><strong>Ejisu Showroom Lot:</strong> Free physical collection & inspection Monday to Saturday.</li>
+            <li><strong>Ashanti Regional Courier:</strong> GH₵ 50.00 same-day/next-day dispatch to Kumasi & environs.</li>
+            <li><strong>Nationwide Ghana Express:</strong> GH₵ 120.00 insured delivery to Greater Accra, Western, Central, Eastern, and Northern regions.</li>
+          </ul>
+        </div>
+      `;
+    }
+  };
+
+  // =========================================================================
+  // 4. Side-by-Side Product Comparison
+  // =========================================================================
   window.toggleCompare = function (id) {
     if (comparison.includes(id)) {
       comparison = comparison.filter(x => x !== id);
-      showToast('Removed from comparison list.');
+      showToast('Removed from comparison.');
     } else {
       if (comparison.length >= 3) {
         showToast('You can compare a maximum of 3 items at a time.');
         return;
       }
       comparison.push(id);
-      showToast('Item added to comparison. Click "Compare" to view side-by-side.');
+      showToast('Added to comparison matrix. Click the compare icon in the header to view.');
     }
     persistComparison();
     renderProductGrid();
@@ -514,7 +561,7 @@
       return;
     }
 
-    const comparedProducts = comparison.map(id => products.find(p => p.id === id)).filter(Boolean);
+    const comparedProducts = comparison.map(id => AkabatiBackend.Catalog.getProductById(id)).filter(Boolean);
     const body = $('#compareModalBody');
     if (!body) return;
 
@@ -530,14 +577,7 @@
       </th>
     `).join('');
 
-    // Collect all spec keys
-    const allKeys = new Set();
-    allKeys.add('Category');
-    allKeys.add('Brand');
-    allKeys.add('Condition');
-    allKeys.add('Warranty & Assurance');
-    allKeys.add('Stock Status');
-
+    const allKeys = new Set(['Category', 'Brand', 'Condition', 'Warranty & Assurance', 'Stock Status']);
     comparedProducts.forEach(p => {
       Object.keys(p.specs || {}).forEach(k => allKeys.add(k));
     });
@@ -568,7 +608,7 @@
         <table class="specs-table" style="min-width: 600px;">
           <thead>
             <tr>
-              <th style="width: 140px; background: #f8fafc;">Product Specs</th>
+              <th style="width: 140px; background: #f8fafc;">Specifications</th>
               ${headersHtml}
             </tr>
           </thead>
@@ -586,11 +626,14 @@
     $('#siteOverlay').classList.remove('show');
   };
 
-  // Multi-Step Checkout Workflow
+  // =========================================================================
+  // 5. Multi-Step Checkout System with MoMo Simulator & Card Processing
+  // =========================================================================
   let checkoutStep = 1;
   let selectedDeliveryMethod = 'ashanti';
   let deliveryCost = 50;
   let selectedPaymentMethod = 'momo';
+  let momoCarrier = 'MTN';
 
   window.openCheckout = function () {
     if (!cart.length) return;
@@ -607,7 +650,7 @@
 
   function renderCheckoutStep() {
     const subtotal = cart.reduce((sum, item) => {
-      const p = products.find(x => x.id === item.id);
+      const p = AkabatiBackend.Catalog.getProductById(item.id);
       return sum + (p ? p.price * item.qty : 0);
     }, 0);
 
@@ -622,23 +665,23 @@
     if (checkoutStep === 1) {
       body.innerHTML = `
         <h4 style="font-family: var(--font-heading); margin-bottom: 6px;">1. Customer & Delivery Address</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Provide your contact and Ghana delivery details so we can deliver securely.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Provide your contact and Ghana delivery destination.</p>
         
         <form id="checkoutStep1Form" onsubmit="event.preventDefault(); window.nextCheckoutStep();">
           <div class="form-grid-2">
             <div class="form-group">
               <label>Full Name *</label>
-              <input type="text" id="chkName" class="form-control" placeholder="e.g. Kwame Mensah" required />
+              <input type="text" id="chkName" class="form-control" placeholder="Kwame Mensah" value="${window._tempCustomer?.name || ''}" required />
             </div>
             <div class="form-group">
               <label>Mobile Number (Ghana) *</label>
-              <input type="tel" id="chkPhone" class="form-control" placeholder="024 000 0000" required />
+              <input type="tel" id="chkPhone" class="form-control" placeholder="024 000 0000" value="${window._tempCustomer?.phone || ''}" required />
             </div>
           </div>
 
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="chkEmail" class="form-control" placeholder="name@example.com" />
+            <label>Email Address (For PDF Receipt & Tracking)</label>
+            <input type="email" id="chkEmail" class="form-control" placeholder="you@example.com" value="${window._tempCustomer?.email || ''}" />
           </div>
 
           <div class="form-grid-2">
@@ -657,13 +700,13 @@
             </div>
             <div class="form-group">
               <label>Town / City & Area *</label>
-              <input type="text" id="chkCity" class="form-control" placeholder="e.g. Ejisu, Kumasi Ahodwo" required />
+              <input type="text" id="chkCity" class="form-control" placeholder="Ejisu, Kumasi Ahodwo" value="${window._tempCustomer?.city || ''}" required />
             </div>
           </div>
 
           <div class="form-group">
-            <label>Ghana Post Digital Address (Optional but recommended)</label>
-            <input type="text" id="chkGps" class="form-control" placeholder="e.g. AS-0482-9912" />
+            <label>Ghana Post Digital Address (Optional)</label>
+            <input type="text" id="chkGps" class="form-control" placeholder="e.g. AS-0482-9912" value="${window._tempCustomer?.digitalAddress || ''}" />
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
@@ -710,26 +753,40 @@
         </div>
       `;
     } else if (checkoutStep === 3) {
-      const orderTotal = subtotal + deliveryCost;
+      let discount = 0;
+      if (activePromo) {
+        const promoRes = AkabatiBackend.Promotions.validateCode(activePromo, subtotal);
+        if (promoRes.valid) discount = promoRes.discount;
+      }
+
+      const grandTotal = Math.max(0, subtotal - discount + deliveryCost);
 
       body.innerHTML = `
-        <h4 style="font-family: var(--font-heading); margin-bottom: 6px;">3. Authoritative Payment Method</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Select your verified payment or order confirmation channel.</p>
+        <h4 style="font-family: var(--font-heading); margin-bottom: 6px;">3. Payment & Settlement</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Select your Ghana-supported payment channel.</p>
 
+        <!-- Coupon / Promo Box -->
+        <div class="coupon-box">
+          <input type="text" id="promoCodeInput" class="coupon-input" placeholder="Promo code (e.g. AKABATI10, EJISUFREE)" value="${activePromo || ''}" />
+          <button class="coupon-btn" onclick="window.applyCheckoutCoupon()">Apply</button>
+        </div>
+        ${activePromo ? `<div class="applied-promo-tag">✓ Coupon "${activePromo}" Applied (-${formatMoney(discount)})</div>` : ''}
+
+        <!-- Payment Channel Cards -->
         <div class="payment-method-card ${selectedPaymentMethod === 'momo' ? 'selected' : ''}" onclick="window.setPaymentOption('momo')">
           <div class="payment-icon" style="font-weight: 900; color: #d97706;">MoMo</div>
           <div style="flex: 1;">
             <strong>Mobile Money (MTN MoMo, Telecel Cash, AT Money)</strong>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Instant push prompt to your phone for authorising payment.</p>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Interactive USSD authorization prompt sent directly to your phone.</p>
           </div>
-          <span class="top-badge-link">Most Popular</span>
+          <span class="top-badge-link">Fastest in Ghana</span>
         </div>
 
         <div class="payment-method-card ${selectedPaymentMethod === 'paystack' ? 'selected' : ''}" onclick="window.setPaymentOption('paystack')">
           <div class="payment-icon" style="font-weight: 900; color: #2563eb;">CARD</div>
           <div style="flex: 1;">
             <strong>Visa / Mastercard & Direct Bank Transfer</strong>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Secure tokenized processing via Paystack gateway adapter.</p>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">Paystack tokenized gateway with 256-bit SSL encryption.</p>
           </div>
         </div>
 
@@ -741,24 +798,33 @@
           </div>
         </div>
 
+        <!-- Breakdown Summary -->
         <div style="background: var(--surface-muted); padding: 16px; border-radius: var(--radius-md); margin-top: 20px;">
           <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-            <span>Cart Items Subtotal:</span>
+            <span>Items Subtotal:</span>
             <strong>${formatMoney(subtotal)}</strong>
           </div>
+          ${discount > 0 ? `
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: var(--accent-green);">
+              <span>Promotional Discount:</span>
+              <strong>-${formatMoney(discount)}</strong>
+            </div>
+          ` : ''}
           <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 10px;">
-            <span>Fulfilment Fee:</span>
+            <span>Delivery Fee:</span>
             <strong>${deliveryCost === 0 ? 'FREE' : formatMoney(deliveryCost)}</strong>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; border-top: 1px solid var(--surface-border); padding-top: 10px; font-family: var(--font-heading);">
             <span>Grand Total:</span>
-            <span style="color: var(--primary-gold-dark);">${formatMoney(orderTotal)}</span>
+            <span style="color: var(--primary-gold-dark);">${formatMoney(grandTotal)}</span>
           </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
           <button type="button" class="btn-secondary" style="color: var(--text-main);" onclick="window.prevCheckoutStep()">← Back</button>
-          <button type="button" class="btn-primary" onclick="window.submitAuthoritativeOrder()">Complete Order & Authorise →</button>
+          <button type="button" class="btn-primary" onclick="window.proceedToPaymentAuthorisation(${grandTotal})">
+            ${selectedPaymentMethod === 'momo' ? 'Launch MoMo Prompt →' : 'Authorize & Place Order →'}
+          </button>
         </div>
       `;
     }
@@ -772,6 +838,27 @@
 
   window.setPaymentOption = function (method) {
     selectedPaymentMethod = method;
+    renderCheckoutStep();
+  };
+
+  window.applyCheckoutCoupon = function () {
+    const input = $('#promoCodeInput');
+    const code = input ? input.value.trim().toUpperCase() : '';
+    if (!code) return;
+
+    const subtotal = cart.reduce((sum, item) => {
+      const p = AkabatiBackend.Catalog.getProductById(item.id);
+      return sum + (p ? p.price * item.qty : 0);
+    }, 0);
+
+    const res = AkabatiBackend.Promotions.validateCode(code, subtotal);
+    if (!res.valid) {
+      showToast(res.message);
+      return;
+    }
+
+    activePromo = res.code;
+    showToast(`Coupon "${res.code}" applied successfully! (-${formatMoney(res.discount)})`);
     renderCheckoutStep();
   };
 
@@ -797,106 +884,162 @@
     }
   };
 
-  // Submit Order & Process Idempotently
-  window.submitAuthoritativeOrder = function () {
-    const cust = window._tempCustomer || {
-      name: 'Valued Customer',
-      phone: '024 000 0000',
-      email: '',
-      region: 'Ashanti',
-      city: 'Ejisu',
-      digitalAddress: 'AS-000-0000'
-    };
-
-    const orderNumber = 'AKB-' + Math.floor(10000 + Math.random() * 90000);
-    const subtotal = cart.reduce((sum, item) => {
-      const p = products.find(x => x.id === item.id);
-      return sum + (p ? p.price * item.qty : 0);
-    }, 0);
-
-    const orderItems = cart.map(item => {
-      const p = products.find(x => x.id === item.id);
-      return {
-        id: item.id,
-        name: p ? p.name : 'Product',
-        price: p ? p.price : 0,
-        qty: item.qty,
-        image: p && p.images ? p.images[0] : ''
-      };
-    });
-
-    // Deduct stock in local inventory & log movement
-    cart.forEach(item => {
-      const p = products.find(x => x.id === item.id);
-      if (p) {
-        p.stock = Math.max(0, p.stock - item.qty);
-      }
-    });
-    persistProducts();
-
-    const newOrder = {
-      orderNumber,
-      date: new Date().toISOString(),
-      customer: cust,
-      items: orderItems,
-      deliveryMethod: selectedDeliveryMethod === 'pickup' ? 'Showroom Pickup (Ejisu)' : (selectedDeliveryMethod === 'ashanti' ? 'Ashanti Regional Express' : 'Nationwide Ghana Express'),
-      deliveryCost,
-      total: subtotal + deliveryCost,
-      paymentMethod: selectedPaymentMethod === 'momo' ? 'Mobile Money (MTN / Telecel)' : (selectedPaymentMethod === 'paystack' ? 'Paystack Card / Transfer' : 'WhatsApp Concierge Order'),
-      paymentStatus: 'PAID',
-      fulfilmentStatus: 'PROCESSING',
-      timeline: [
-        { title: 'Order Placed & Submitted', time: 'Just now', status: 'done' },
-        { title: 'Payment Authoritatively Verified & Recorded', time: 'Just now', status: 'done' },
-        { title: 'Showroom Picking & Quality Inspection', time: 'In progress', status: 'active' },
-        { title: 'Dispatch / Ready for Collection', time: 'Pending completion', status: 'pending' },
-        { title: 'Delivered', time: 'Pending delivery', status: 'pending' }
-      ]
-    };
-
-    orders.unshift(newOrder);
-    persistOrders();
-
-    // Clear Cart
-    cart = [];
-    persistCart();
-
-    // Render Success Modal
-    const body = $('#checkoutModalBody');
-    body.innerHTML = `
-      <div style="text-align: center; padding: 30px 10px;">
-        <div style="width: 60px; height: 60px; border-radius: 50%; background: #ecfdf5; color: var(--accent-green); display: grid; place-items: center; margin: 0 auto 16px; font-size: 1.8rem; font-weight: 900;">
-          ✓
-        </div>
-        <h3 style="font-family: var(--font-heading); margin-bottom: 8px;">Order Placed Successfully!</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-          Thank you for choosing Akabati Enterprise. Your order reference is:
-        </p>
-        <div style="background: var(--surface-muted); padding: 12px 24px; border-radius: var(--radius-md); font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: var(--primary-gold-dark); display: inline-block; margin-bottom: 24px;">
-          ${orderNumber}
+  // Launch Realistic Interactive Payment Simulation
+  window.proceedToPaymentAuthorisation = function (total) {
+    if (selectedPaymentMethod === 'momo') {
+      // Interactive USSD MoMo Prompt Simulation
+      const body = $('#checkoutModalBody');
+      body.innerHTML = `
+        <div style="text-align: center; margin-bottom: 12px;">
+          <h4 style="font-family: var(--font-heading); margin-bottom: 4px;">Authorise Mobile Money Payment</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            A prompt has been sent to <strong>${window._tempCustomer?.phone || 'your phone'}</strong>. Approve below to settle.
+          </p>
         </div>
 
-        <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 460px; margin: 0 auto 24px;">
-          We have recorded your delivery to <strong>${cust.city}, ${cust.region}</strong> (${cust.phone}). You can track real-time progress anytime using your order reference.
-        </p>
+        <div class="momo-phone-simulator">
+          <div class="momo-screen">
+            <div class="momo-carrier-header">
+              <span class="momo-carrier-name">MTN Mobile Money</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">USSD *170#</span>
+            </div>
+            <div class="momo-prompt-text">
+              <strong>AUTHORISATION REQUEST:</strong><br><br>
+              Merchant: Akabati Enterprise<br>
+              Amount: ${formatMoney(total)}<br>
+              Fee: GH₵ 0.00<br>
+              Reference: AKB-SHOP<br><br>
+              Enter PIN to approve:
+            </div>
+            <input type="password" maxlength="4" value="••••" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.2em; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 12px;" readonly />
+            <button class="momo-action-btn" onclick="window.finaliseOrderSubmission('MTN Mobile Money', 'MOMO-GH-' + Math.floor(100000 + Math.random() * 900000))">
+              ✓ Approve Payment (${formatMoney(total)})
+            </button>
+          </div>
+        </div>
 
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-          <button class="btn-primary" onclick="window.closeCheckout(); window.trackSpecificOrder('${orderNumber}');">
-            Track Order Live ↗
+        <div style="text-align: center; margin-top: 16px;">
+          <button class="btn-secondary" style="color: var(--text-muted); font-size: 0.8rem;" onclick="window.renderCheckoutStep()">
+            Cancel & Change Channel
           </button>
-          <a class="btn-secondary" style="color: var(--text-main);" 
-             href="https://wa.me/233244027477?text=${encodeURIComponent('Hello Akabati Enterprise, I have placed order ' + orderNumber + ' for ' + formatMoney(newOrder.total) + '. Kindly confirm processing.')}" 
-             target="_blank" rel="noopener">
-            WhatsApp Receipt Copy ↗
-          </a>
         </div>
-      </div>
-    `;
+      `;
+    } else if (selectedPaymentMethod === 'paystack') {
+      // Paystack Card Simulation
+      const body = $('#checkoutModalBody');
+      body.innerHTML = `
+        <div style="max-width: 420px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <strong style="font-family: var(--font-heading);">Paystack Card Gateway</strong>
+            <span class="top-badge-link">Secured 256-bit</span>
+          </div>
 
-    showToast(`Order ${orderNumber} created successfully!`);
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" class="form-control" placeholder="4000 1234 5678 9010" value="4000 1234 5678 9010" />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Expiry Date</label>
+              <input type="text" class="form-control" placeholder="MM/YY" value="12/28" />
+            </div>
+            <div class="form-group">
+              <label>CVV / CVC</label>
+              <input type="password" class="form-control" placeholder="123" value="•••" />
+            </div>
+          </div>
+
+          <button class="btn-primary btn-block" style="margin-top: 16px;" onclick="window.finaliseOrderSubmission('Paystack Card / Transfer', 'PSTK-TX-' + Math.floor(100000 + Math.random() * 900000))">
+            Authorise ${formatMoney(total)} →
+          </button>
+        </div>
+      `;
+    } else {
+      window.finaliseOrderSubmission('WhatsApp Concierge Order', 'WA-DIRECT-' + Date.now());
+    }
   };
 
-  // Order Tracking View
+  // Finalise Order Submission authoritatively via BackendService
+  window.finaliseOrderSubmission = function (paymentMethodTitle, reference) {
+    try {
+      const cust = window._tempCustomer || {
+        name: 'Kwame Mensah',
+        phone: '024 123 4567',
+        email: 'kwame.mensah@gmail.com',
+        region: 'Ashanti',
+        city: 'Ejisu',
+        digitalAddress: 'AS-0482-9912'
+      };
+
+      const paymentMethod = {
+        name: paymentMethodTitle,
+        provider: selectedPaymentMethod.toUpperCase(),
+        reference
+      };
+
+      // Server-authoritative order placement
+      const order = AkabatiBackend.Orders.createOrder(
+        cart,
+        cust,
+        selectedDeliveryMethod,
+        paymentMethod,
+        activePromo
+      );
+
+      // Clear Cart
+      cart = [];
+      activePromo = null;
+      persistCart();
+
+      // Render Order Confirmation
+      const body = $('#checkoutModalBody');
+      body.innerHTML = `
+        <div style="text-align: center; padding: 24px 10px;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: #ecfdf5; color: var(--accent-green); display: grid; place-items: center; margin: 0 auto 16px; font-size: 1.8rem; font-weight: 900;">
+            ✓
+          </div>
+          <h3 style="font-family: var(--font-heading); margin-bottom: 6px;">Order Placed & Payment Verified!</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">
+            Thank you for shopping at Akabati Enterprise. Your authoritative order reference is:
+          </p>
+
+          <div style="background: var(--surface-muted); padding: 12px 24px; border-radius: var(--radius-md); font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: var(--primary-gold-dark); display: inline-block; margin-bottom: 20px;">
+            ${order.orderNumber}
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid var(--surface-border); border-radius: var(--radius-md); padding: 16px; text-align: left; max-width: 480px; margin: 0 auto 24px; font-size: 0.85rem;">
+            <div><strong>Recipient:</strong> ${order.customer.name} (${order.customer.phone})</div>
+            <div><strong>Destination:</strong> ${order.customer.city}, ${order.customer.region} · ${order.customer.digitalAddress}</div>
+            <div><strong>Fulfilment:</strong> ${order.deliveryMethod}</div>
+            <div><strong>Total Paid:</strong> ${formatMoney(order.total)} (${order.paymentMethod})</div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="window.closeCheckout(); window.trackSpecificOrder('${order.orderNumber}');">
+              Track Order Live ↗
+            </button>
+            <button class="btn-secondary" style="color: var(--text-main);" onclick="window.openInvoiceModal('${order.orderNumber}')">
+              Print / Save Invoice 📄
+            </button>
+            <a class="btn-secondary" style="color: var(--text-main);" 
+               href="https://wa.me/233244027477?text=${encodeURIComponent('Hello Akabati Enterprise, I have completed order ' + order.orderNumber + ' for ' + formatMoney(order.total) + '. Kindly confirm processing.')}" 
+               target="_blank" rel="noopener">
+              WhatsApp Receipt ↗
+            </a>
+          </div>
+        </div>
+      `;
+
+      showToast(`Order ${order.orderNumber} placed & verified!`);
+    } catch (e) {
+      alert(`Order placement failed: ${e.message}`);
+    }
+  };
+
+  // =========================================================================
+  // 6. Live Order Tracking Engine
+  // =========================================================================
   window.trackOrderPrompt = function () {
     const input = $('#trackOrderInput');
     const orderNum = input ? input.value.trim().toUpperCase() : '';
@@ -909,7 +1052,7 @@
 
   window.trackSpecificOrder = function (orderNum) {
     const cleanNum = orderNum.trim().toUpperCase();
-    const order = orders.find(o => o.orderNumber.toUpperCase() === cleanNum);
+    const order = AkabatiBackend.Orders.getOrder(cleanNum);
 
     const modalBody = $('#trackingModalBody');
     if (!modalBody) return;
@@ -919,7 +1062,7 @@
         <div style="text-align: center; padding: 40px 16px;">
           <h4 style="font-family: var(--font-heading); margin-bottom: 8px;">Order Reference Not Found</h4>
           <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">
-            We couldn't locate reference "${cleanNum}". Please check your receipt or contact Akabati Enterprise at 0244 027 477.
+            We couldn't locate reference "${cleanNum}". Please verify your receipt or contact Akabati Enterprise at 0244 027 477.
           </p>
           <button class="btn-primary" onclick="window.closeTrackingModal()">Try Another Reference</button>
         </div>
@@ -937,9 +1080,9 @@
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--surface-border); font-size: 0.85rem;">
           <div>
             <strong>${item.name}</strong>
-            <div style="color: var(--text-muted); font-size: 0.75rem;">Qty: ${item.qty}</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">Qty: ${item.qty} · SKU: ${item.sku || 'AKB'}</div>
           </div>
-          <span style="font-weight: 800; font-family: var(--font-heading);">${formatMoney(item.price * item.qty)}</span>
+          <span style="font-weight: 800; font-family: var(--font-heading);">${formatMoney(item.lineTotal || (item.price * item.qty))}</span>
         </div>
       `).join('');
 
@@ -951,25 +1094,43 @@
             <span class="status-badge ${order.fulfilmentStatus.toLowerCase()}">${order.fulfilmentStatus}</span>
           </div>
           <div style="text-align: right;">
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Grand Total</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Total Amount Paid</div>
             <strong style="font-family: var(--font-heading); font-size: 1.25rem;">${formatMoney(order.total)}</strong>
+          </div>
+        </div>
+
+        <!-- Logistics Route Indicator -->
+        <div style="background: #111827; color: #ffffff; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.85rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--primary-gold-light); text-transform: uppercase;">Origin</span>
+              <strong>Ejisu Hub (Ashanti)</strong>
+            </div>
+            <div style="color: var(--primary-gold);">────── ✈ ──────</div>
+            <div style="text-align: right;">
+              <span style="font-size: 0.72rem; color: var(--primary-gold-light); text-transform: uppercase;">Destination</span>
+              <strong>${order.customer.city}, ${order.customer.region}</strong>
+            </div>
           </div>
         </div>
 
         <div style="background: var(--surface-muted); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.82rem;">
           <div><strong>Recipient:</strong> ${order.customer.name} (${order.customer.phone})</div>
-          <div><strong>Delivery Address:</strong> ${order.customer.city}, ${order.customer.region} ${order.customer.digitalAddress ? '· ' + order.customer.digitalAddress : ''}</div>
-          <div><strong>Method:</strong> ${order.deliveryMethod} · <strong>Payment:</strong> ${order.paymentMethod} (${order.paymentStatus})</div>
+          <div><strong>Digital Address:</strong> ${order.customer.digitalAddress} · <strong>Method:</strong> ${order.deliveryMethod}</div>
+          <div><strong>Payment Reference:</strong> <code>${order.paymentReference}</code> (${order.paymentMethod})</div>
         </div>
 
-        <h5 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 12px;">Status Progress Timeline</h5>
+        <h5 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 12px;">Lifecycle Progress Stepper</h5>
         <div class="tracking-timeline">${timelineHtml}</div>
 
-        <h5 style="font-family: var(--font-heading); font-size: 0.95rem; margin: 24px 0 12px;">Items in this Shipment</h5>
+        <h5 style="font-family: var(--font-heading); font-size: 0.95rem; margin: 24px 0 12px;">Order Snapshot Items</h5>
         <div>${itemsHtml}</div>
 
-        <div style="margin-top: 24px; text-align: center;">
-          <a class="btn-primary" style="display: inline-flex;" 
+        <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn-primary" onclick="window.openInvoiceModal('${order.orderNumber}')">
+            View / Print Official Invoice 📄
+          </button>
+          <a class="btn-secondary" style="color: var(--text-main);" 
              href="https://wa.me/233244027477?text=${encodeURIComponent('Hello Akabati Enterprise, I am inquiring about tracking updates for order ' + order.orderNumber)}" 
              target="_blank" rel="noopener">
             Contact Delivery Desk on WhatsApp ↗
@@ -987,8 +1148,127 @@
     $('#siteOverlay').classList.remove('show');
   };
 
-  // Sign In & Customer Account
+  // =========================================================================
+  // 7. Printable Invoice Receipt Modal
+  // =========================================================================
+  window.openInvoiceModal = function (orderNumber) {
+    const order = AkabatiBackend.Orders.getOrder(orderNumber);
+    if (!order) return;
+
+    const modal = $('#invoiceModalWrapper');
+    const body = $('#invoiceModalBody');
+    if (!modal || !body) return;
+
+    let itemsRows = order.items.map(item => `
+      <tr>
+        <td><strong>${item.name}</strong><br><small style="color: var(--text-muted);">${item.sku}</small></td>
+        <td style="text-align: center;">${item.qty}</td>
+        <td style="text-align: right;">${formatMoney(item.price)}</td>
+        <td style="text-align: right;"><strong>${formatMoney(item.lineTotal || (item.price * item.qty))}</strong></td>
+      </tr>
+    `).join('');
+
+    body.innerHTML = `
+      <div id="printableInvoice" class="invoice-container">
+        <div class="invoice-header">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <div class="brand-icon" style="width: 42px; height: 42px;">
+                <img src="assets/images/akabati-logo-icon.png" alt="Akabati Enterprise" />
+              </div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin: 0;">Akabati Enterprise</h2>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; margin: 0;">
+              Ejisu, Ashanti Region, Ghana<br>
+              Phone: +233 244 027 477 · Email: felixakabati007@gmail.com<br>
+              TIN / Business Reg: Verified Ghana Business
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <h3 style="font-family: var(--font-heading); margin: 0 0 4px; color: var(--primary-gold-dark);">TAX INVOICE</h3>
+            <div style="font-weight: 800; font-size: 1rem;">${order.orderNumber}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Date: ${new Date(order.date).toLocaleDateString()}</div>
+            <span class="status-badge paid" style="display: inline-block; margin-top: 6px;">PAID & SETTLED</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; font-size: 0.85rem;">
+          <div>
+            <strong style="display: block; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem;">Bill / Deliver To:</strong>
+            <strong>${order.customer.name}</strong><br>
+            Phone: ${order.customer.phone}<br>
+            Address: ${order.customer.city}, ${order.customer.region}<br>
+            Digital Address: ${order.customer.digitalAddress}
+          </div>
+          <div>
+            <strong style="display: block; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem;">Payment Information:</strong>
+            Method: ${order.paymentMethod}<br>
+            Transaction Ref: <code>${order.paymentReference}</code><br>
+            Fulfilment: ${order.deliveryMethod}<br>
+            Driver: ${order.driver ? order.driver.name + ' (' + order.driver.phone + ')' : 'Direct Delivery'}
+          </div>
+        </div>
+
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align: center;">Qty</th>
+              <th style="text-align: right;">Unit Price</th>
+              <th style="text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>${itemsRows}</tbody>
+        </table>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+          <div style="width: 260px; font-size: 0.88rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span>Subtotal:</span>
+              <strong>${formatMoney(order.subtotal || order.total)}</strong>
+            </div>
+            ${order.discountAmount ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--accent-green);">
+                <span>Discount (${order.appliedPromo || 'Coupon'}):</span>
+                <strong>-${formatMoney(order.discountAmount)}</strong>
+              </div>
+            ` : ''}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span>Delivery Charge:</span>
+              <strong>${order.deliveryCost === 0 ? 'FREE' : formatMoney(order.deliveryCost)}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; border-top: 2px solid var(--surface-border); padding-top: 8px; font-family: var(--font-heading);">
+              <span>Grand Total:</span>
+              <span style="color: var(--primary-gold-dark);">${formatMoney(order.total)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--surface-border); margin-top: 30px; padding-top: 16px; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+          Thank you for your business. Quality, Our Pride — Akabati Enterprise, Ejisu, Ashanti Region, Ghana.
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+        <button class="btn-secondary" style="color: var(--text-main);" onclick="window.closeInvoiceModal()">Close</button>
+        <button class="btn-primary" onclick="window.print()">Print Official Invoice 🖨️</button>
+      </div>
+    `;
+
+    modal.classList.add('show');
+    $('#siteOverlay').classList.add('show');
+  };
+
+  window.closeInvoiceModal = function () {
+    $('#invoiceModalWrapper').classList.remove('show');
+    $('#siteOverlay').classList.remove('show');
+  };
+
+  // =========================================================================
+  // 8. Customer Account & Portal
+  // =========================================================================
   window.openAccountModal = function () {
+    window.switchAccountTab('orders');
     $('#accountModalWrapper').classList.add('show');
     $('#siteOverlay').classList.add('show');
   };
@@ -998,7 +1278,78 @@
     $('#siteOverlay').classList.remove('show');
   };
 
-  // Admin Portal & Operations Console
+  window.switchAccountTab = function (tab) {
+    $$('.account-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    const container = $('#accountPortalContent');
+    if (!container) return;
+
+    if (tab === 'orders') {
+      const orders = AkabatiBackend.Orders.getOrders();
+      container.innerHTML = `
+        <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Your Order History</h4>
+        ${orders.length ? `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${orders.map(o => `
+              <div style="background: var(--surface-muted); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--surface-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 10px;">
+                <div>
+                  <strong>Order ${o.orderNumber}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${new Date(o.date).toLocaleDateString()} · ${o.items.length} items · ${formatMoney(o.total)}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="status-badge ${o.fulfilmentStatus.toLowerCase()}">${o.fulfilmentStatus}</span>
+                  <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; color: var(--text-main);" onclick="window.closeAccountModal(); window.trackSpecificOrder('${o.orderNumber}')">
+                    Track Live ↗
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="color: var(--text-muted); font-size: 0.85rem;">No orders placed yet.</p>'}
+      `;
+    } else if (tab === 'wishlist') {
+      const wishIds = AkabatiBackend.Wishlist.getWishlist();
+      const wishProds = wishIds.map(id => AkabatiBackend.Catalog.getProductById(id)).filter(Boolean);
+
+      container.innerHTML = `
+        <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Saved Wishlist (${wishProds.length} items)</h4>
+        ${wishProds.length ? `
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${wishProds.map(p => `
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #ffffff; border: 1px solid var(--surface-border); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <img src="${p.images[0]}" alt="" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px;" />
+                  <div>
+                    <strong style="font-size: 0.88rem;">${p.name}</strong>
+                    <div style="color: var(--primary-gold-dark); font-weight: 800; font-size: 0.82rem;">${formatMoney(p.price)}</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="window.addToCart('${p.id}', 1)">Add to Cart</button>
+                  <button style="color: var(--accent-red); font-size: 0.8rem; padding: 6px;" onclick="window.toggleWishlist('${p.id}'); window.switchAccountTab('wishlist');">✕</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="color: var(--text-muted); font-size: 0.85rem;">Your wishlist is currently empty. Browse the shop and click the heart icon to save products.</p>'}
+      `;
+    } else if (tab === 'profile') {
+      container.innerHTML = `
+        <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Customer Profile</h4>
+        <div style="font-size: 0.85rem; color: var(--text-main); line-height: 1.8;">
+          <div><strong>Primary Recipient:</strong> Kwame Mensah</div>
+          <div><strong>Contact Phone:</strong> 024 123 4567</div>
+          <div><strong>Email:</strong> kwame.mensah@gmail.com</div>
+          <div><strong>Location:</strong> Ejisu, Ashanti Region, Ghana</div>
+          <div><strong>Ghana Post GPS:</strong> AS-0482-9912</div>
+          <div style="margin-top: 14px; color: var(--accent-green); font-weight: 700;">✓ Verified Ghana Customer Session</div>
+        </div>
+      `;
+    }
+  };
+
+  // =========================================================================
+  // 9. Staff Operations & Admin Console (Architecture Section 6.2 & 18)
+  // =========================================================================
   window.openAdminModal = function () {
     renderAdminOverview();
     $('#adminModalWrapper').classList.add('show');
@@ -1014,28 +1365,41 @@
     $$('.admin-nav-tab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
 
-    const content = $('#adminTabContent');
-    if (!content) return;
-
     if (tabName === 'overview') renderAdminOverview();
     else if (tabName === 'products') renderAdminProducts();
     else if (tabName === 'inventory') renderAdminInventory();
     else if (tabName === 'orders') renderAdminOrders();
     else if (tabName === 'finance') renderAdminFinance();
+    else if (tabName === 'promotions') renderAdminPromotions();
+    else if (tabName === 'audit') renderAdminAudit();
   };
 
   function renderAdminOverview() {
     const content = $('#adminTabContent');
     if (!content) return;
 
+    const orders = AkabatiBackend.Orders.getOrders();
+    const products = AkabatiBackend.Catalog.getAllProducts();
+
     const totalRevenue = orders.reduce((sum, o) => sum + (o.paymentStatus === 'PAID' ? o.total : 0), 0);
     const totalUnits = products.reduce((sum, p) => sum + p.stock, 0);
     const lowStock = products.filter(p => p.stock <= 2);
 
+    // Electronics vs Vehicles breakdown
+    const electronicsRev = orders.reduce((sum, o) => {
+      const elTotal = o.items.filter(i => i.category === 'Electronics').reduce((s, i) => s + (i.lineTotal || i.price * i.qty), 0);
+      return sum + elTotal;
+    }, 0);
+
+    const vehicleRev = orders.reduce((sum, o) => {
+      const vTotal = o.items.filter(i => i.category === 'Vehicles').reduce((s, i) => s + (i.lineTotal || i.price * i.qty), 0);
+      return sum + vTotal;
+    }, 0);
+
     content.innerHTML = `
       <div class="admin-metric-grid">
         <div class="metric-box">
-          <small>Authorised Revenue</small>
+          <small>Gross Settled Revenue</small>
           <strong>${formatMoney(totalRevenue)}</strong>
         </div>
         <div class="metric-box">
@@ -1043,7 +1407,7 @@
           <strong>${orders.length}</strong>
         </div>
         <div class="metric-box">
-          <small>Stock Units on Hand</small>
+          <small>Units in Ejisu Showroom</small>
           <strong>${totalUnits}</strong>
         </div>
         <div class="metric-box">
@@ -1052,12 +1416,27 @@
         </div>
       </div>
 
+      <!-- Department Revenue Breakdown -->
+      <div style="background: var(--surface-muted); padding: 18px; border-radius: var(--radius-md); margin-bottom: 24px; border: 1px solid var(--surface-border);">
+        <strong style="display: block; font-family: var(--font-heading); margin-bottom: 8px;">Department Performance Split</strong>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.85rem;">
+          <div>
+            <span>Smart Electronics:</span>
+            <strong style="display: block; font-size: 1.1rem; color: var(--primary-gold-dark);">${formatMoney(electronicsRev)}</strong>
+          </div>
+          <div>
+            <span>Certified Vehicles:</span>
+            <strong style="display: block; font-size: 1.1rem; color: var(--primary-gold-dark);">${formatMoney(vehicleRev)}</strong>
+          </div>
+        </div>
+      </div>
+
       <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Recent Orders Queue</h4>
       <div class="admin-table-wrapper">
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Order #</th>
+              <th>Order Ref</th>
               <th>Customer</th>
               <th>Date</th>
               <th>Payment</th>
@@ -1076,7 +1455,8 @@
                 <td><span class="status-badge ${o.fulfilmentStatus.toLowerCase()}">${o.fulfilmentStatus}</span></td>
                 <td><strong>${formatMoney(o.total)}</strong></td>
                 <td>
-                  <button style="color: var(--primary-gold-dark); font-weight: 700;" onclick="window.trackSpecificOrder('${o.orderNumber}')">View</button>
+                  <button style="color: var(--primary-gold-dark); font-weight: 700; margin-right: 6px;" onclick="window.trackSpecificOrder('${o.orderNumber}')">View</button>
+                  <button style="color: var(--accent-blue); font-weight: 700;" onclick="window.openInvoiceModal('${o.orderNumber}')">Invoice</button>
                 </td>
               </tr>
             `).join('')}
@@ -1089,6 +1469,8 @@
   function renderAdminProducts() {
     const content = $('#adminTabContent');
     if (!content) return;
+
+    const products = AkabatiBackend.Catalog.getAllProducts();
 
     content.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1116,7 +1498,7 @@
                   <img src="${p.images[0]}" alt="" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;" />
                   <strong>${p.name.substring(0, 28)}...</strong>
                 </td>
-                <td>${p.sku}</td>
+                <td><code>${p.sku}</code></td>
                 <td>${p.category}</td>
                 <td><strong>${p.stock}</strong></td>
                 <td>${formatMoney(p.price)}</td>
@@ -1137,23 +1519,26 @@
     const content = $('#adminTabContent');
     if (!content) return;
 
+    const products = AkabatiBackend.Catalog.getAllProducts();
+    const movements = AkabatiBackend.Inventory.getStockMovements();
+
     content.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h4 style="font-family: var(--font-heading); margin: 0;">Stock Balances & Audited Adjustments</h4>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-        As specified in the architecture document: every stock movement must have an authoritative reason code (e.g. Stock Receipt, Showroom Count, Damage Correction).
+        Compliance: Every stock delta is logged to an immutable ledger with mandatory audit reason codes.
       </p>
 
-      <div class="admin-table-wrapper">
+      <div class="admin-table-wrapper" style="margin-bottom: 30px;">
         <table class="admin-table">
           <thead>
             <tr>
               <th>SKU</th>
               <th>Product Name</th>
               <th>Location</th>
-              <th>On Hand</th>
-              <th>Adjust Stock</th>
+              <th>Current On Hand</th>
+              <th>Adjust Balance</th>
             </tr>
           </thead>
           <tbody>
@@ -1173,12 +1558,42 @@
           </tbody>
         </table>
       </div>
+
+      <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Recent Stock Movements Log</h4>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Product ID</th>
+              <th>Type</th>
+              <th>Delta</th>
+              <th>Reason</th>
+              <th>Actor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${movements.slice(0, 10).map(m => `
+              <tr>
+                <td>${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                <td><code>${m.productId}</code></td>
+                <td><span class="status-badge ${m.type === 'RECEIPT' ? 'paid' : (m.type === 'SALE' ? 'dispatched' : 'pending')}">${m.type}</span></td>
+                <td style="font-weight: 800; color: ${m.delta > 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">${m.delta > 0 ? '+' : ''}${m.delta}</td>
+                <td>${m.reason}</td>
+                <td>${m.actor}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   }
 
   function renderAdminOrders() {
     const content = $('#adminTabContent');
     if (!content) return;
+
+    const orders = AkabatiBackend.Orders.getOrders();
 
     content.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1192,7 +1607,8 @@
               <th>Order Reference</th>
               <th>Customer</th>
               <th>Fulfilment Status</th>
-              <th>Advance Status</th>
+              <th>Advance Pipeline</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -1215,6 +1631,11 @@
                     <option value="DELIVERED" ${o.fulfilmentStatus === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
                   </select>
                 </td>
+                <td>
+                  <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: var(--text-main);" onclick="window.openInvoiceModal('${o.orderNumber}')">
+                    Print Invoice 📄
+                  </button>
+                </td>
               </tr>
             `).join('')}
           </tbody>
@@ -1226,6 +1647,8 @@
   function renderAdminFinance() {
     const content = $('#adminTabContent');
     if (!content) return;
+
+    const orders = AkabatiBackend.Orders.getOrders();
 
     content.innerHTML = `
       <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Financial Reconciliation & Payment Journal</h4>
@@ -1240,8 +1663,8 @@
               <th>Date</th>
               <th>Order Ref</th>
               <th>Channel</th>
-              <th>Amount (Minor Units)</th>
-              <th>Provider Status</th>
+              <th>Provider Reference</th>
+              <th>Settled Total</th>
               <th>Reconciliation</th>
             </tr>
           </thead>
@@ -1251,9 +1674,9 @@
                 <td>${new Date(o.date).toLocaleDateString()}</td>
                 <td><strong>${o.orderNumber}</strong></td>
                 <td>${o.paymentMethod}</td>
+                <td><code>${o.paymentReference || 'MM-GH-SETTLED'}</code></td>
                 <td><strong>${formatMoney(o.total)}</strong></td>
-                <td><span class="status-badge paid">VERIFIED_SETTLED</span></td>
-                <td style="color: var(--accent-green); font-weight: 700; font-size: 0.8rem;">Matched 100%</td>
+                <td style="color: var(--accent-green); font-weight: 700; font-size: 0.8rem;">✓ 100% Settled</td>
               </tr>
             `).join('')}
           </tbody>
@@ -1262,12 +1685,83 @@
     `;
   }
 
-  // Admin Stock Adjustment Action
+  function renderAdminPromotions() {
+    const content = $('#adminTabContent');
+    if (!content) return;
+
+    const promos = AkabatiBackend.Promotions.getPromotions();
+
+    content.innerHTML = `
+      <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">Promotions & Discount Vouchers</h4>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Coupon Code</th>
+              <th>Type</th>
+              <th>Discount Value</th>
+              <th>Min. Spend</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${promos.map(p => `
+              <tr>
+                <td><strong><code>${p.code}</code></strong></td>
+                <td>${p.type}</td>
+                <td>${p.type === 'PERCENTAGE' ? p.value + '%' : formatMoney(p.value)}</td>
+                <td>${formatMoney(p.minSpend)}</td>
+                <td>${p.description}</td>
+                <td><span class="status-badge paid">ACTIVE</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderAdminAudit() {
+    const content = $('#adminTabContent');
+    if (!content) return;
+
+    const logs = AkabatiBackend.Audit.getAll();
+
+    content.innerHTML = `
+      <h4 style="font-family: var(--font-heading); margin-bottom: 12px;">System & Staff Security Audit Log</h4>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Actor</th>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Audit Payload</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.slice(0, 15).map(l => `
+              <tr>
+                <td>${new Date(l.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                <td><strong>${l.actor}</strong></td>
+                <td><span class="status-badge pending">${l.action}</span></td>
+                <td><code>${l.entityType} #${l.entityId}</code></td>
+                <td style="font-size: 0.75rem; color: var(--text-muted);">${JSON.stringify(l.details)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
   window.adminAdjustStockPrompt = function (id) {
-    const p = products.find(x => x.id === id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
     if (!p) return;
 
-    const newStockStr = prompt(`Enter new stock quantity for "${p.name}" (Current: ${p.stock}):`, p.stock);
+    const newStockStr = prompt(`Enter new showroom stock for "${p.name}" (Current: ${p.stock}):`, p.stock);
     if (newStockStr === null) return;
 
     const newStock = parseInt(newStockStr, 10);
@@ -1276,20 +1770,20 @@
       return;
     }
 
-    const reason = prompt('Mandatory Audit Reason (e.g., Stock Receipt, Showroom Count, Damage Correction):', 'Stock Receipt');
+    const reason = prompt('Mandatory Audit Reason (e.g., Stock Receipt, Showroom Physical Count, Damage/Loss):', 'Showroom Physical Count');
     if (!reason) {
       alert('Stock adjustment cancelled. A reason is required by architecture policy.');
       return;
     }
 
-    p.stock = newStock;
-    persistProducts();
+    AkabatiBackend.Inventory.adjustStock(id, newStock, reason, 'Inventory Manager');
     renderAdminInventory();
-    showToast(`Stock updated for ${p.sku} (Reason: ${reason})`);
+    renderProductGrid();
+    showToast(`Stock updated for ${p.sku} (${reason})`);
   };
 
   window.adminEditPrice = function (id) {
-    const p = products.find(x => x.id === id);
+    const p = AkabatiBackend.Catalog.getProductById(id);
     if (!p) return;
 
     const newPriceStr = prompt(`Enter new price in GH₵ for "${p.name}":`, p.price);
@@ -1301,75 +1795,56 @@
       return;
     }
 
-    p.price = newPrice;
-    persistProducts();
+    AkabatiBackend.Catalog.updatePrice(id, newPrice, 'Administrator');
     renderAdminProducts();
+    renderProductGrid();
     showToast(`Price updated for ${p.name}`);
   };
 
   window.adminToggleStatus = function (id) {
-    const p = products.find(x => x.id === id);
-    if (!p) return;
-
-    p.status = p.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE';
-    persistProducts();
+    const p = AkabatiBackend.Catalog.toggleStatus(id, 'Administrator');
     renderAdminProducts();
+    renderProductGrid();
     showToast(`Product is now ${p.status}`);
   };
 
   window.adminUpdateOrderStatus = function (orderNumber, newStatus) {
-    const order = orders.find(o => o.orderNumber === orderNumber);
-    if (!order) return;
-
-    order.fulfilmentStatus = newStatus;
-    if (!order.timeline) order.timeline = [];
-    order.timeline.push({
-      title: `Fulfilment advanced to ${newStatus}`,
-      time: 'Just now',
-      status: 'active'
-    });
-
-    persistOrders();
+    AkabatiBackend.Orders.updateFulfilmentStatus(orderNumber, newStatus, 'Staff pipeline update', 'Order Manager');
     showToast(`Order ${orderNumber} updated to ${newStatus}`);
   };
 
   window.openAddProductForm = function () {
     const name = prompt('Product Name:');
     if (!name) return;
-    const category = prompt('Category (Electronics or Vehicles):', 'Electronics');
+    const category = prompt('Department (Electronics or Vehicles):', 'Electronics');
     const price = parseFloat(prompt('Price in GH₵:', '5000') || '0');
-    const sku = 'AKB-' + Math.floor(1000 + Math.random() * 9000);
+    const stock = parseInt(prompt('Opening Stock Quantity in Ejisu:', '5') || '5', 10);
 
-    const newProduct = {
-      id: 'CUSTOM-' + Date.now(),
-      sku,
+    const isVeh = category.toLowerCase().includes('veh');
+    const newProductData = {
       name,
-      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      category: category.toLowerCase().includes('veh') ? 'Vehicles' : 'Electronics',
-      subcategory: 'Custom Listing',
+      category: isVeh ? 'Vehicles' : 'Electronics',
+      subcategory: isVeh ? 'Showroom Listing' : 'Electronics',
       brand: 'Akabati Certified',
       price: price > 0 ? price : 1000,
-      stock: 5,
-      status: 'ACTIVE',
-      tag: 'New Addition',
-      featured: false,
+      stock: stock > 0 ? stock : 1,
+      tag: 'New Listing',
       condition: 'Verified Genuine',
-      warranty: 'Standard Akabati Assurance',
-      images: [
-        category.toLowerCase().includes('veh') 
-          ? 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80'
-          : 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80'
-      ],
+      warranty: isVeh ? '6 Months Mechanical Warranty + 120-Point Inspection' : '1 Year Official Warranty',
       description: 'Handpicked quality inventory backed by Akabati Enterprise in Ejisu, Ashanti Region, Ghana.',
-      specs: {
-        'Category': category,
-        'Inspection': '100% Quality Checked'
+      specs: isVeh ? {
+        'Inspection': '120-Point Checked',
+        'Showroom': 'Ejisu Main Lot'
+      } : {
+        'Quality Standard': 'Certified Authentic',
+        'Showroom': 'Ejisu Electronics Counter'
       }
     };
 
-    products.unshift(newProduct);
-    persistProducts();
-    showToast(`New product "${name}" added to catalogue!`);
+    const created = AkabatiBackend.Catalog.createProduct(newProductData, 'Administrator');
+    renderAdminProducts();
+    renderProductGrid();
+    showToast(`New product "${created.name}" created successfully!`);
   };
 
   // Filter Listeners
@@ -1384,15 +1859,20 @@
   window.resetShopFilters = function () {
     activeCategory = 'All';
     activeSearchQuery = '';
+    inStockOnly = false;
     const searchInput = $('#searchInput');
     if (searchInput) searchInput.value = '';
+    const inStockBox = $('#inStockOnlyToggle');
+    if (inStockBox) inStockBox.checked = false;
     $$('.filter-tab').forEach(tab => {
       tab.classList.toggle('active', tab.dataset.category === 'All');
     });
     renderProductGrid();
   };
 
-  // Policy Modals
+  // =========================================================================
+  // 10. Policy Modals
+  // =========================================================================
   window.openPolicyModal = function (type) {
     const modalBody = $('#policyModalBody');
     const modalTitle = $('#policyModalTitle');
@@ -1430,7 +1910,7 @@
       modalBody.innerHTML = `
         <h4 style="font-family: var(--font-heading); margin-bottom: 8px;">Data & Transaction Integrity</h4>
         <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px;">
-          In accordance with Ghanaian commerce standards and the Data Protection Commission guidelines, Akabati Enterprise protects your customer data.
+          In accordance with Ghanaian commerce standards and Data Protection Commission guidelines, Akabati Enterprise protects your customer data.
         </p>
         <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;">
           Mobile money numbers and card details are securely processed via certified payment gateways and are never stored in plaintext on our servers.
@@ -1447,12 +1927,25 @@
     $('#siteOverlay').classList.remove('show');
   };
 
-  // Close All Modals Handler
   window.closeAllModals = function () {
     $$('.modal-wrapper').forEach(m => m.classList.remove('show'));
     $('#cartDrawer').classList.remove('show');
     $('#siteOverlay').classList.remove('show');
   };
+
+  // Keyboard shortcut: '/' to focus search
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      const search = $('#searchInput');
+      if (search) {
+        search.focus();
+        search.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else if (e.key === 'Escape') {
+      window.closeAllModals();
+    }
+  });
 
   // DOM Content Loaded Initializer
   document.addEventListener('DOMContentLoaded', () => {
@@ -1479,6 +1972,14 @@
     if (sortSelect) {
       sortSelect.addEventListener('change', e => {
         activeSort = e.target.value;
+        renderProductGrid();
+      });
+    }
+
+    const inStockToggle = $('#inStockOnlyToggle');
+    if (inStockToggle) {
+      inStockToggle.addEventListener('change', e => {
+        inStockOnly = e.target.checked;
         renderProductGrid();
       });
     }
