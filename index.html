@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a1118" />
+  <meta name="description" content="Akabati Enterprise — Premium electronics and certified vehicles in Ejisu, Ashanti Region, Ghana. Quality, Our Pride." />
+  <title>Akabati Enterprise | Quality, Our Pride — Ejisu, Ashanti, Ghana</title>
+
+  <!-- Google Fonts: Manrope for headings, DM Sans for text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Core Design System -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <div class="top-bar-location">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span>Ejisu, Ashanti Region, Ghana &nbsp;·&nbsp; Showroom & Logistics Hub</span>
+      </div>
+      <div class="top-bar-actions">
+        <a href="tel:+233244027477">Call: 0244 027 477</a>
+        <a href="https://wa.me/233244027477" target="_blank" rel="noopener">WhatsApp Support</a>
+        <a href="mailto:felixakabati007@gmail.com">felixakabati007@gmail.com</a>
+        <span class="top-badge-link">Currency: GH₵ (Ghana Cedi)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-nav">
+    <div class="container nav-container">
+      <!-- Brand Logo -->
+      <a href="#home" class="brand-link" aria-label="Akabati Enterprise Homepage">
+        <div class="brand-icon">A</div>
+        <div class="brand-info">
+          <span class="brand-title">Akabati Enterprise</span>
+          <span class="brand-motto">Quality, Our Pride</span>
+        </div>
+      </a>
+
+      <!-- Primary Navigation Links -->
+      <nav>
+        <ul class="nav-menu" id="mainNavMenu">
+          <li><a href="#home" class="active">Home</a></li>
+          <li><a href="#shop">Shop Catalogue</a></li>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="#track-section">Track Order</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="nav-actions">
+        <!-- Compare Trigger -->
+        <button class="action-btn" onclick="window.openCompareModal()" title="View side-by-side product comparison" aria-label="Compare products">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+          </svg>
+          <span class="btn-counter" id="compareCountBadge" style="display: none;">0</span>
+        </button>
+
+        <!-- Shopping Cart Trigger -->
+        <button class="action-btn" onclick="window.openCart()" title="View your shopping cart" aria-label="Shopping Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="btn-counter" id="cartCountBadge" style="display: none;">0</span>
+        </button>
+
+        <!-- Customer Sign In -->
+        <button class="account-btn" onclick="window.openAccountModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Account</span>
+        </button>
+
+        <!-- Staff Operations Console Toggle (Architecture 6.2 & 18) -->
+        <button class="admin-mode-pill" onclick="window.openAdminModal()" title="Open Business Operations Portal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Staff Console</span>
+        </button>
+
+        <!-- Mobile Navigation Toggle -->
+        <button class="action-btn mobile-toggle" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span>★</span> Ejisu, Ashanti Region, Ghana
+        </div>
+        <h1 class="hero-heading">
+          Quality You Can <span>Count On.</span>
+        </h1>
+        <p class="hero-desc">
+          Akabati Enterprise is your premium destination for high-end electronics and certified vehicles. Backed by authentic warranties, rigorous mechanical inspections, and nationwide delivery across Ghana.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#shop" class="btn-primary">
+            <span>Explore Catalogue</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <button class="btn-secondary" onclick="window.filterCategory('Vehicles'); location.href='#shop';">
+            <span>Browse Vehicles</span>
+          </button>
+          <button class="btn-secondary" onclick="window.filterCategory('Electronics'); location.href='#shop';">
+            <span>Inspect Electronics</span>
+          </button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-lbl">Quality Guaranteed</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">Ejisu</span>
+            <span class="stat-lbl">Physical Showroom</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">16</span>
+            <span class="stat-lbl">Ghana Regions Delivered</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Showcase -->
+      <div class="hero-visual">
+        <div class="showcase-card">
+          <div class="showcase-image-wrapper">
+            <img src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=1000&q=85" alt="Toyota Land Cruiser Prado Showcase" />
+            <span class="showcase-badge">Ejisu Flagship Unit</span>
+          </div>
+          <div class="showcase-body">
+            <div class="showcase-subtitle">Certified Vehicle Listing</div>
+            <h3 class="showcase-title">2023 Toyota Land Cruiser Prado TX-L</h3>
+            <div class="showcase-specs-preview">
+              <span class="spec-pill">2.8L Turbo Diesel</span>
+              <span class="spec-pill">Automatic 4WD</span>
+              <span class="spec-pill">24,500 km</span>
+              <span class="spec-pill">7-Seater Luxury</span>
+            </div>
+            <div class="showcase-footer">
+              <div class="showcase-price">GH₵ 890,000</div>
+              <button class="showcase-inspect-btn" onclick="window.openQuickView('VH-001')">
+                View Inspection Report →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-seal">
+          <div class="seal-icon">✓</div>
+          <div class="seal-text">
+            <strong>Certified Authenticity</strong>
+            <small>Inspected in Ejisu, Ghana</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust & Core Assurance Bar -->
+  <section class="trust-bar">
+    <div class="container trust-grid">
+      <div class="trust-card">
+        <div class="trust-card-icon">✦</div>
+        <div class="trust-card-content">
+          <h4>Quality, Our Pride</h4>
+          <p>Every device & vehicle is inspected before sale</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-card-icon">📍</div>
+        <div class="trust-card-content">
+          <h4>Showroom in Ejisu</h4>
+          <p>Visit us physically in the Ashanti Region</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-card-icon">⚡</div>
+        <div class="trust-card-content">
+          <h4>Fast Ghana Delivery</h4>
+          <p>Local courier & secure nationwide express</p>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-card-icon">🛡️</div>
+        <div class="trust-card-content">
+          <h4>Direct Warranty</h4>
+          <p>Official manufacturer & dealership cover</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Dual Gateway -->
+  <section class="section-py" id="categories">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="section-eyebrow">Explore Collections</span>
+          <h2 class="section-title">Shop by Major Department</h2>
+        </div>
+        <p class="section-desc">
+          Akabati Enterprise specializes in two distinct categories of premium merchandise. Choose a department to filter our live catalogue.
+        </p>
+      </div>
+
+      <div class="categories-grid">
+        <!-- Electronics Banner -->
+        <div class="category-banner" onclick="window.filterCategory('Electronics'); location.href='#shop';">
+          <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1200&q=85" alt="Electronics Department" />
+          <div class="category-content">
+            <span class="cat-count-badge">8+ Verified Products</span>
+            <h3>Smart Electronics & Tech</h3>
+            <p>Smart 4K TVs, Apple MacBooks, flagship smartphones, studio headphones, and high-performance appliances.</p>
+            <span class="category-btn">Explore Electronics <span>→</span></span>
+          </div>
+        </div>
+
+        <!-- Vehicles Banner -->
+        <div class="category-banner" onclick="window.filterCategory('Vehicles'); location.href='#shop';">
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=85" alt="Vehicles Department" />
+          <div class="category-content">
+            <span class="cat-count-badge">6+ Showroom Listings</span>
+            <h3>Certified Vehicles</h3>
+            <p>Luxury 4x4 SUVs, fuel-efficient hybrids, executive sedans, and heavy-duty pickups ready for physical inspection in Ejisu.</p>
+            <span class="category-btn">Explore Vehicles <span>→</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Product Catalogue & Filter Toolbar -->
+  <section class="section-py shop-section" id="shop">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="section-eyebrow">Authoritative Showroom Catalogue</span>
+          <h2 class="section-title">Featured Products & Vehicles</h2>
+        </div>
+        <p class="section-desc">
+          All items reflect active inventory at our Ejisu location. Order securely online or request an in-person viewing.
+        </p>
+      </div>
+
+      <!-- Toolbar: Category Tabs + Search + Sorting -->
+      <div class="shop-controls">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-category="All">All Items</button>
+          <button class="filter-tab" data-category="Electronics">Electronics</button>
+          <button class="filter-tab" data-category="Vehicles">Vehicles</button>
+        </div>
+
+        <div class="search-and-sort">
+          <div class="search-input-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted);">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search" id="searchInput" placeholder="Search devices, cars, brands..." aria-label="Search products" />
+          </div>
+
+          <select class="sort-select" id="sortSelect" aria-label="Sort products">
+            <option value="featured">Sort by: Featured</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+            <option value="az">Name: A to Z</option>
+            <option value="new">Newest Arrivals</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Product Cards Grid (Populated by app.js) -->
+      <div class="products-grid" id="productsGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Real-Time Order Tracking Banner -->
+  <section class="tracking-banner" id="track-section">
+    <div class="container tracking-grid">
+      <div class="tracking-content">
+        <span class="hero-tag" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: var(--primary-gold-light);">
+          State Machine Lifecycle
+        </span>
+        <h3>Track Your Akabati Order Live</h3>
+        <p>
+          Enter your unique order reference (e.g. <code>AKB-78291</code> or <code>AKB-84910</code>) to verify payment settlement, picking progress, courier dispatch, and estimated delivery across Ghana.
+        </p>
+
+        <div class="tracking-form">
+          <input type="text" id="trackOrderInput" placeholder="Enter Reference (e.g. AKB-78291)" aria-label="Order reference number" />
+          <button class="btn-primary" onclick="window.trackOrderPrompt()">
+            <span>Track Order</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tracking-badges">
+        <div class="tracking-badge-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <div>
+            <strong>Verified Timelines</strong>
+            <small>Authoritative state transitions</small>
+          </div>
+        </div>
+
+        <div class="tracking-badge-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <div>
+            <strong>Ghana Logistics</strong>
+            <small>Ashanti & Nationwide courier</small>
+          </div>
+        </div>
+
+        <div class="tracking-badge-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <div>
+            <strong>MoMo & Card Proof</strong>
+            <small>Idempotent transaction ledger</small>
+          </div>
+        </div>
+
+        <div class="tracking-badge-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <div>
+            <strong>Direct Concierge</strong>
+            <small>WhatsApp updates & calls</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Akabati & Location Band -->
+  <section class="about-band" id="about">
+    <div class="container about-grid">
+      <div class="about-content">
+        <span class="section-eyebrow">Based in Ashanti Region</span>
+        <h2>Rooted in Ejisu, Serving All of Ghana</h2>
+        <p>
+          Akabati Enterprise was founded on an unwavering commitment: <strong>Quality, Our Pride</strong>. Whether you are equipping your home or office with the latest computing and home entertainment technology, or investing in a reliable vehicle for work and family, we eliminate the guesswork.
+        </p>
+        <p>
+          We welcome you to visit our physical showroom lot in Ejisu to test, inspect, and experience our inventory before buying.
+        </p>
+
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <a class="btn-primary" href="https://wa.me/233244027477?text=Hello%20Akabati%20Enterprise%2C%20I%20would%20like%20to%20visit%20your%20Ejisu%20showroom." target="_blank" rel="noopener">
+            Book a Showroom Visit on WhatsApp →
+          </a>
+          <button class="btn-secondary" style="color: var(--text-main); border-color: var(--surface-border);" onclick="window.openPolicyModal('warranty')">
+            Read Our Quality Guarantee
+          </button>
+        </div>
+      </div>
+
+      <!-- Contact Info Cards -->
+      <div class="contact-card-list" id="contact">
+        <div class="contact-row">
+          <div class="contact-icon">📍</div>
+          <div class="contact-details">
+            <small>Physical Showroom & Office</small>
+            <strong>Ejisu, Ashanti Region, Ghana</strong>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <div class="contact-icon">📞</div>
+          <div class="contact-details">
+            <small>Direct Line / WhatsApp</small>
+            <strong><a href="tel:+233244027477">0244 027 477 (+233 244 027 477)</a></strong>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <div class="contact-icon">✉️</div>
+          <div class="contact-details">
+            <small>Official Business Email</small>
+            <strong><a href="mailto:felixakabati007@gmail.com">felixakabati007@gmail.com</a></strong>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <div class="contact-icon">🕒</div>
+          <div class="contact-details">
+            <small>Opening Hours</small>
+            <strong>Monday – Saturday: 8:00 AM – 6:30 PM</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="brand-link" style="color: #ffffff;">
+          <div class="brand-icon">A</div>
+          <div class="brand-info">
+            <span class="brand-title" style="color: #ffffff;">Akabati Enterprise</span>
+            <span class="brand-motto">Quality, Our Pride</span>
+          </div>
+        </a>
+        <p>
+          Premium electronics, modern appliances, and certified vehicles in Ejisu, Ashanti Region, Ghana. Serving private individuals, commercial clients, and organizations with integrity.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Department Catalogue</h4>
+        <ul class="footer-links">
+          <li><a href="#shop" onclick="window.filterCategory('Electronics')">Smart Televisions</a></li>
+          <li><a href="#shop" onclick="window.filterCategory('Electronics')">Apple MacBooks & Laptops</a></li>
+          <li><a href="#shop" onclick="window.filterCategory('Electronics')">Smartphones & Audio</a></li>
+          <li><a href="#shop" onclick="window.filterCategory('Vehicles')">Luxury 4x4 SUVs</a></li>
+          <li><a href="#shop" onclick="window.filterCategory('Vehicles')">Commercial Pickups</a></li>
+          <li><a href="#shop" onclick="window.filterCategory('Vehicles')">Hybrid & Sedans</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Customer Assurance</h4>
+        <ul class="footer-links">
+          <li><a href="javascript:void(0)" onclick="window.openPolicyModal('shipping')">Delivery Policy across Ghana</a></li>
+          <li><a href="javascript:void(0)" onclick="window.openPolicyModal('warranty')">Warranty & 120-Point Inspection</a></li>
+          <li><a href="javascript:void(0)" onclick="window.openPolicyModal('terms')">Terms & Privacy Policy</a></li>
+          <li><a href="#track-section">Track Your Order</a></li>
+          <li><a href="javascript:void(0)" onclick="window.openAdminModal()">Staff Operations Console</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Showroom & Support</h4>
+        <ul class="footer-links">
+          <li><span>Ejisu, Ashanti Region, Ghana</span></li>
+          <li><a href="tel:+233244027477">Call: 0244 027 477</a></li>
+          <li><a href="https://wa.me/233244027477" target="_blank" rel="noopener">WhatsApp: +233 244 027 477</a></li>
+          <li><a href="mailto:felixakabati007@gmail.com">felixakabati007@gmail.com</a></li>
+          <li><span style="color: var(--primary-gold-light);">MTN MoMo & Telecel Cash Accepted</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <span>© 2026 Akabati Enterprise. All rights reserved. Registered in Ghana.</span>
+      <span style="color: var(--primary-gold-light); font-weight: 700;">Quality, Our Pride.</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       MODALS, DRAWERS & OVERLAYS
+       ========================================================================== -->
+
+  <!-- Backdrop Overlay -->
+  <div class="overlay" id="siteOverlay"></div>
+
+  <!-- Shopping Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart">
+    <div class="drawer-header">
+      <h3>Your Cart</h3>
+      <button class="drawer-close-btn" onclick="window.closeCart()" aria-label="Close cart">×</button>
+    </div>
+
+    <div class="cart-items-container" id="cartItemsList">
+      <!-- Injected by app.js -->
+    </div>
+
+    <div class="drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal:</span>
+        <span id="cartSubtotal">GH₵ 0.00</span>
+      </div>
+      <p class="cartnote">
+        Prices in Ghana Cedis (GH₵). Delivery fees are calculated authoritatively at checkout based on your destination in Ghana.
+      </p>
+      <button class="btn-primary btn-block" id="cartCheckoutBtn" onclick="window.openCheckout()">
+        Proceed to Checkout →
+      </button>
+    </div>
+  </aside>
+
+  <!-- Quick View & Specs Modal -->
+  <div class="modal-wrapper" id="quickViewModalWrapper">
+    <div class="modal-card wide">
+      <div class="modal-header">
+        <h3>Product Specifications & Viewing</h3>
+        <button class="drawer-close-btn" onclick="window.closeQuickView()" aria-label="Close view">×</button>
+      </div>
+      <div class="modal-body" id="quickViewModalBody">
+        <!-- Injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Side-by-Side Comparison Modal -->
+  <div class="modal-wrapper" id="compareModalWrapper">
+    <div class="modal-card wide">
+      <div class="modal-header">
+        <h3>Side-by-Side Specification Comparison</h3>
+        <button class="drawer-close-btn" onclick="window.closeCompareModal()" aria-label="Close comparison">×</button>
+      </div>
+      <div class="modal-body" id="compareModalBody">
+        <!-- Injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Multi-Step Checkout Modal -->
+  <div class="modal-wrapper" id="checkoutModalWrapper">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Akabati Enterprise Checkout</h3>
+        <button class="drawer-close-btn" onclick="window.closeCheckout()" aria-label="Close checkout">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="checkout-steps-nav">
+          <div class="checkout-step-pill active" id="chkStep1Pill">
+            <span class="step-num">1</span>
+            <span>Customer & Address</span>
+          </div>
+          <div class="checkout-step-pill" id="chkStep2Pill">
+            <span class="step-num">2</span>
+            <span>Fulfilment</span>
+          </div>
+          <div class="checkout-step-pill" id="chkStep3Pill">
+            <span class="step-num">3</span>
+            <span>Payment</span>
+          </div>
+        </div>
+
+        <div id="checkoutModalBody">
+          <!-- Injected by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Order Tracking Modal -->
+  <div class="modal-wrapper" id="trackingModalWrapper">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Order Tracking & Lifecycle</h3>
+        <button class="drawer-close-btn" onclick="window.closeTrackingModal()" aria-label="Close tracking">×</button>
+      </div>
+      <div class="modal-body" id="trackingModalBody">
+        <!-- Injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Account Modal -->
+  <div class="modal-wrapper" id="accountModalWrapper">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Customer Portal</h3>
+        <button class="drawer-close-btn" onclick="window.closeAccountModal()" aria-label="Close account">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div class="brand-icon" style="margin: 0 auto 12px;">A</div>
+          <h4 style="font-family: var(--font-heading); margin-bottom: 6px;">Sign in to Akabati Enterprise</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            Manage your orders, saved Ghana delivery addresses, and warranty claims.
+          </p>
+        </div>
+
+        <form onsubmit="event.preventDefault(); window.closeAccountModal(); showToast('Signed in successfully as Kwame Mensah.');">
+          <div class="form-group">
+            <label>Ghana Mobile Number or Email *</label>
+            <input type="text" class="form-control" placeholder="024 000 0000 or you@gmail.com" value="024 123 4567" required />
+          </div>
+
+          <div class="form-group">
+            <label>Password / Security Code *</label>
+            <input type="password" class="form-control" value="••••••••••••" required />
+          </div>
+
+          <button type="submit" class="btn-primary btn-block" style="margin-top: 10px;">
+            Sign In Securely →
+          </button>
+        </form>
+
+        <div style="border-top: 1px solid var(--surface-border); margin-top: 24px; padding-top: 18px; font-size: 0.82rem; color: var(--text-muted); text-align: center;">
+          In live deployment, user sessions are managed securely via Supabase Auth with SMS OTP and Google OAuth.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Staff Operations & Admin Console Modal -->
+  <div class="modal-wrapper" id="adminModalWrapper">
+    <div class="modal-card admin-card">
+      <div class="modal-header">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--accent-green);">Authorized Management Session</span>
+          <h3 style="margin: 0;">Akabati Business Operations Console</h3>
+        </div>
+        <button class="drawer-close-btn" onclick="window.closeAdminModal()" aria-label="Close admin">×</button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="admin-nav-tabs">
+        <button class="admin-nav-tab active" onclick="window.switchAdminTab('overview', this)">Overview Metrics</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('products', this)">Catalogue Manager</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('inventory', this)">Stock Balances</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('orders', this)">Orders Pipeline</button>
+        <button class="admin-nav-tab" onclick="window.switchAdminTab('finance', this)">Financial Reconciliation</button>
+      </div>
+
+      <div class="modal-body" id="adminTabContent">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Policy Information Modal -->
+  <div class="modal-wrapper" id="policyModalWrapper">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="policyModalTitle">Policy Information</h3>
+        <button class="drawer-close-btn" onclick="window.closePolicyModal()" aria-label="Close policy">×</button>
+      </div>
+      <div class="modal-body" id="policyModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Alert -->
+  <div class="toast" id="siteToast" role="status" aria-live="polite"></div>
+
+  <!-- JavaScript Applications -->
+  <script src="js/products-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
